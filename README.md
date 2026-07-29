@@ -1,67 +1,8 @@
-# LHCb Bicocca Template Package
-This is a template package for developing the codebase of analyses and projects developed within the LHCb Bicocca group.
+# Limit Setting for $\tau\to\mu\mu\mu$
 
-## Use the template
+This package acts as a codebase for Alessandro Bomei's bachelor thesis (2026).
 
-### Dual-Remote Approach
-To use the template we follow the Dual-Remote approach
-```
-                     ┌────────────────────────┐
-                     │ Base Template Repo     │
-                     └───────────┬────────────┘
-                                 │
-                   (Fetch updates via `template`)
-                                 │
-                                 ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│ Downstream Project Repository                                           │
-│                                                                         │
-│  Remote 'origin'   ──► git@github.com:lhcb-bicocca/my-new-project.git   │
-│  Remote 'template' ──► git@github.com:lhcb-bicocca/pkg-template.git     │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-In this workflow, every repository created from the template keeps two Git remotes:
-
-- origin: Points to the individual project repository (where normal work happens).
-- template: Points back to the original base template repository.
-
-#### Step 1: Initialize the Downstream Repo
-
-Instead of using GitHub's "Use this template" button, clone the base template, create the new repository on GitHub, and re-link the remotes:
-
-```bash
-# 1. Clone the base template into your new project directory
-git clone git@github.com:lhcb-bicocca/pkg-template my-new-project
-cd my-new-project
-
-# 2. Rename 'origin' to 'template'
-git remote rename origin template
-
-# 3. Create your new empty repository in the org on GitHub, then link it as 'origin'
-git remote add origin git@github.com:lhcb-bicocca/my-new-project.git
-
-# 4. Push the initial code to your new repo
-git push -u origin main
-```
-
-#### Step 2: Pull Updates from the Template Later
-Whenever you add features or bug fixes to base-template, developers in child repositories can pull those updates with standard Git merge or rebase operations:
-
-```bash
-# Fetch latest changes from the base template
-git fetch template
-
-# Merge updates into your active branch (or use rebase)
-git merge template/main --allow-unrelated-histories
-```
-
-### Automated Sync via GitHub Actions
-
-A `template-sync` workflow is added to `.github/workflows`.
-Child repositories inherit this workflow.
-Every night (or on manual trigger), the action checks `lhcb-bicocca/pkg-template` for new commits.
-If new features exist, it automatically creates a Pull Request in the child repository with the new code, letting maintainers review and resolve conflicts via GitHub's standard PR UI
+The project aims at developing a software to calculate upper limits on the branching fraction of $\tau\to\mu\mu\mu$ decays.
 
 
 ## `uv` based
