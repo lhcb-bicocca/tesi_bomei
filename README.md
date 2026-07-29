@@ -13,12 +13,12 @@ To use the template we follow the Dual-Remote approach
                    (Fetch updates via `template`)
                                  │
                                  ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ Downstream Project Repository                                   │
-│                                                                 │
-│  Remote 'origin'   ──► git@github.com:org/my-new-project.git    │
-│  Remote 'template' ──► git@github.com:org/base-template.git     │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Downstream Project Repository                                           │
+│                                                                         │
+│  Remote 'origin'   ──► git@github.com:lhcb-bicocca/my-new-project.git   │
+│  Remote 'template' ──► git@github.com:lhcb-bicocca/pkg-template.git     │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 In this workflow, every repository created from the template keeps two Git remotes:
@@ -32,14 +32,14 @@ Instead of using GitHub's "Use this template" button, clone the base template, c
 
 ```bash
 # 1. Clone the base template into your new project directory
-git clone git@github.com:your-org/base-template.git my-new-project
+git clone git@github.com:lhcb-bicocca/pkg-template my-new-project
 cd my-new-project
 
 # 2. Rename 'origin' to 'template'
 git remote rename origin template
 
 # 3. Create your new empty repository in the org on GitHub, then link it as 'origin'
-git remote add origin git@github.com:your-org/my-new-project.git
+git remote add origin git@github.com:lhcb-bicocca/my-new-project.git
 
 # 4. Push the initial code to your new repo
 git push -u origin main
@@ -60,7 +60,7 @@ git merge template/main --allow-unrelated-histories
 
 A `template-sync` workflow is added to `.github/workflows`.
 Child repositories inherit this workflow.
-Every night (or on manual trigger), the action checks `lhcb-bicocca/base-template` for new commits.
+Every night (or on manual trigger), the action checks `lhcb-bicocca/pkg-template` for new commits.
 If new features exist, it automatically creates a Pull Request in the child repository with the new code, letting maintainers review and resolve conflicts via GitHub's standard PR UI
 
 
