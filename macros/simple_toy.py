@@ -7,12 +7,17 @@ import pyhf
 
 N_TOYS = 100_000
 
+#Imposto seed per riproducibilità
+seed = 42
+pyhf.set_backend("numpy")
+np.random.seed(42) 
+
 #Hp: Poisson con lambda = b + mu*s
 
-s = 10 		#segnale atteso
-b = 70 		#background atteso
-n_obs = 60    #eventi osservati
-mu_test = 1 #Supponiamo che segnale esista
+s = 100 	   #segnale atteso
+b = 1000 	   #background atteso
+n_obs = 1050    #eventi osservati
+mu_test = 1    #Supponiamo che segnale esista
 	
 
 def q_tilde(n, b, s, mu):
@@ -59,10 +64,10 @@ plt.show()
 #Statistica osservata
 q_obs = q_tilde(n_obs, b, s, mu_test)
 
-#Calcolo p_value e CLs)
+#Calcolo p_value e CLs
 p_sb_toy = np.mean(q_sb_toy >= q_obs)
 p_b_toy = np.mean(q_b_toy >= q_obs)
-CLs_toy_qtilde = p_sb_toy / (1 - p_b_toy)
+CLs_toy_qtilde = p_sb_toy / p_b_toy
 
 print(f"CLs (toy con qtilde) = {CLs_toy_qtilde}")
 
@@ -83,7 +88,7 @@ q_value = np.array([q_tilde(n, b, s, mu_test) for n in n_val])
 p_sb = prob_sb[q_value >= q_obs].sum()
 p_b = prob_b[q_value >= q_obs].sum()
 
-CLs_qtilde = p_sb / (1 - p_b)
+CLs_qtilde = p_sb / p_b
 
 print(f"q̃_obs = {q_obs}")
 print(f"p_sb = {p_sb}")
@@ -103,9 +108,7 @@ spec = {
                 {
                     "name": "background",
                     "data": [b],
-                    "modifiers": [
-                        {"name": "mu", "type": "normfactor", "data": None}
-                    ]
+                    "modifiers": []
                 },
                 {
                     "name": "signal",
@@ -119,32 +122,37 @@ spec = {
     ]
 }
 
-model = pyhf.Model(spec)
+model = pyhf.Model(spec, poi_name = "mu")
 
-'''
-#Non funziona. Probabile conflitto di versione con numpy? Da approfondire
-CLs_pyhf_toy_qtilde = pyhf.infer.hypotest(
+np.random.seed(42)
+CLs_obs_pyhf_toy, CLs_exp_pyhf_toy = pyhf.infer.hypotest(
     mu_test, 
     [n_obs], 
     model, 
     test_stat="qtilde", 
     calctype="toybased",
     ntoys=100_000,
-    return_expected=False
+    return_expected_set=True
 )
 
-print(f"CLs (pyhf con qtilde, toys) = {CLs_pyhf_toy_qtilde}")
-'''
+print(f"      Observed CLs (toy): {CLs_obs_pyhf_toy}")
+for expected_value, n_sigma in zip(CLs_exp_pyhf_toy, np.arange(-2, 3)):
+    print(f"Expected CLs_toy({n_sigma} σ): {expected_value}")
 
-CLs_obs_pyhf = pyhf.infer.hypotest(
+
+CLs_obs_pyhf, CLs_exp_pyhf = pyhf.infer.hypotest(
     mu_test, 
     [n_obs], 
     model, 
     test_stat="qtilde", 
     calctype="asymptotics",
-    return_expected=False
+    return_expected_set=True
 )
 
-print(f"CLs (pyhf, asintotico): {CLs_obs_pyhf}")
+print(f"      Observed CLs: {CLs_obs_pyhf}")
+for expected_value, n_sigma in zip(CLs_exp_pyhf, np.arange(-2, 3)):
+    print(f"Expected CLs({n_sigma} σ): {expected_value}")
+
+
 
 
