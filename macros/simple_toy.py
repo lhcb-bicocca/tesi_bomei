@@ -119,6 +119,39 @@ print(f"p_sb = {p_sb}")
 print(f"p_b = {p_b}")
 print(f"CLs = {CLs_qtilde}")
 
+#CLs atteso con Poissoniana; [oss: numpy searchsorted per maggiore velocità, però ok anche così per pochi toys]
+
+CLs_values = []
+
+#mi devo costruire la statistica per tutti i valori di n come prima, con differenza che qui ho n_obs exp
+for n_obs_exp in n_val:
+    q_obs_exp = q_tilde(n_obs_exp, b, s, mu_test)
+    mask = q_value >= q_obs_exp
+    p_sb = prob_sb[mask].sum()
+    p_b  = prob_b[mask].sum()
+    CLs_values.append(p_sb / p_b)
+
+CLs_values_ = np.array(CLs_values)
+
+#metto in ordine per calcolarmi cdf (devo cercare quantili di CLs, non di n !)
+sort_mask = np.argsort(CLs_values_)
+CLs_sorted = CLs_values_[sort_mask]
+cdf = np.cumsum(prob_b[sort_mask])
+
+CLs_exp_minus2 = CLs_sorted[np.searchsorted(cdf, 0.025)]
+CLs_exp_minus1 = CLs_sorted[np.searchsorted(cdf, 0.16)]
+CLs_exp_median = CLs_sorted[np.searchsorted(cdf, 0.50)]
+CLs_exp_plus1  = CLs_sorted[np.searchsorted(cdf, 0.84)]
+CLs_exp_plus2  = CLs_sorted[np.searchsorted(cdf, 0.975)]
+
+print(f"Expected CLs (median) = {CLs_exp_median}")
+print(f"Expected CLs -1σ     = {CLs_exp_minus1}")
+print(f"Expected CLs +1σ     = {CLs_exp_plus1}")
+print(f"Expected CLs -2σ     = {CLs_exp_minus2}")
+print(f"Expected CLs +2σ     = {CLs_exp_plus2}")
+
+print(cdf[-1])
+
 '''++++++++++++++++++++++++++'''
 
 ## Usando Pyhf
