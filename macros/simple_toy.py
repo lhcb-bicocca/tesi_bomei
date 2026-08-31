@@ -69,7 +69,31 @@ p_sb_toy = np.mean(q_sb_toy >= q_obs)
 p_b_toy = np.mean(q_b_toy >= q_obs)
 CLs_toy_qtilde = p_sb_toy / p_b_toy
 
-print(f"CLs (toy con qtilde) = {CLs_toy_qtilde}")
+
+print(f"CLs obs (toy con qtilde) = {CLs_toy_qtilde}")
+
+#CLs atteso con toys; [oss: numpy searchsorted per maggiore velocità, però ok anche così per pochi toys]
+CLs_values = []
+for n_bg in toy_b:
+    q_obs_toy = q_tilde(n_bg, b, s, mu_test)
+    p_sb = np.mean(q_sb_toy >= q_obs_toy)   # coda destra sotto s+b
+    p_b  = np.mean(q_b_toy  >= q_obs_toy)   # coda destra sotto b
+    CLs_values.append(p_sb / p_b)
+
+CLs_values = np.array(CLs_values)
+
+# Quantili
+CLs_exp_median = np.median(CLs_values)
+CLs_exp_minus1 = np.percentile(CLs_values, 16)   # -1σ
+CLs_exp_plus1  = np.percentile(CLs_values, 84)   # +1σ
+CLs_exp_minus2 = np.percentile(CLs_values, 2.5)  # -2σ
+CLs_exp_plus2  = np.percentile(CLs_values, 97.5) # +2σ
+
+print(f"Expected CLs (median) = {CLs_exp_median}")
+print(f"Expected CLs -1σ     = {CLs_exp_minus1}")
+print(f"Expected CLs +1σ     = {CLs_exp_plus1}")
+print(f"Expected CLs -2σ     = {CLs_exp_minus2}")
+print(f"Expected CLs +2σ     = {CLs_exp_plus2}")
 
 '''++++++++++++++++++++++++++'''
 
@@ -153,6 +177,13 @@ print(f"      Observed CLs: {CLs_obs_pyhf}")
 for expected_value, n_sigma in zip(CLs_exp_pyhf, np.arange(-2, 3)):
     print(f"Expected CLs({n_sigma} σ): {expected_value}")
 
+#Calcolo upper limit
+scan = np.linspace(0, 5, 21)
+obs_limit, exp_limits, (scan, results) = pyhf.infer.intervals.upper_limits.upper_limit(
+    [n_obs], model, scan, return_results=True
+)
 
+print(obs_limit)
+print(exp_limits)
 
 
