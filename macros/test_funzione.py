@@ -49,6 +49,15 @@ compute_cls(
 )
 
 compute_cls(
+    calculator="asymptotics",
+    n_obs=n_obs,
+    b=b,
+    s=s,
+    mu=mu_test,
+    PRINT=True
+)
+
+compute_cls(
     calculator="pyhf",
     model = model,
     n_obs=n_obs,
@@ -65,3 +74,5 @@ compute_cls(
     calctype = "asymptotics",
     PRINT=True
 )
+
+
