@@ -7,11 +7,6 @@ b = 10 	   #background atteso
 n_obs = 8    #eventi osservati
 mu_test = 1    #Supponiamo che segnale esista
 
-mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, calculator = "asymptotics")
-
-print(mu_up_obs)
-print(mu_up_exp)
-
 spec = {
     "channels": [
         {
@@ -50,12 +45,18 @@ model = pyhf.Model(
     poi_name="mu"
 )
 
-#Calcolo upper limit
-scan = np.linspace(0, 20, 201)
-obs_limit, exp_limits, (scan, results) = pyhf.infer.intervals.upper_limits.upper_limit(
-    [n_obs], model, scan = scan, level = 0.05, return_results=True
-)
+mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, 
+		calculator = "asymptotics", PRINT = True)
 
-print(obs_limit)
-print(exp_limits)
+mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, 
+		calculator = "toys", PRINT = True)
+		
+mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, 
+		calculator = "poisson", PRINT = True)
+
+mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, model = model,
+		calculator = "pyhf", calctype = "asymptotics",  PRINT = True)
+
+mu_up_obs, mu_up_exp = upper_limit(n_obs, b, s, model = model,
+		calculator = "pyhf", calctype = "toybased", PRINT = True)
 
