@@ -328,7 +328,11 @@ def CLs_asymptotics(n_obs, b, s, mu, PRINT = False) :
     n_asimov 	  = b
     q_mu_A   	  = q_tilde(n_asimov, b, s, mu)
     sqrt_q_mu_A   = np.sqrt(q_mu_A)
-    sigma_mu 	  = mu / np.sqrt(q_mu_A)
+    
+    if sqrt_q_mu_A != 0:
+    	sigma_mu = mu / sqrt_q_mu_A
+    else:
+    	sigma_mu = None
     
     ' Calcolo di CLs_obs '
     

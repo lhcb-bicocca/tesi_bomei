@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "analysis-helpers",
+    "pyhf>=0.7.6",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -20,3 +21,4 @@ package = true
 
 [tool.uv.sources]
 analysis-helpers = { git = "ssh://git@github.com/cpviolation/analysis_helpers.git" }
+pyhf = { git = "https://github.com/scikit-hep/pyhf.git" }
