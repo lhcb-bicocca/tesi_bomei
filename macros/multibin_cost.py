@@ -131,6 +131,7 @@ expected_main = model.expected_data(pars, include_auxdata=False)
 obs_main = rng_obs.poisson(expected_main)
 aux = model.config.auxdata  
 
+#obs_main = np.array([284,174,110,203,121,67,41,133,62,50,42,79,33,29,23])
 obs_data = np.concatenate([obs_main, aux])
 
 #Calcolo upper limit con vari metodi per confrontare

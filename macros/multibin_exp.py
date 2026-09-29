@@ -35,7 +35,11 @@ Is it correct to take the gamma value from the different processes and make a me
 '''
 
 B_norm = 1444
-bkg_tau = 100
+sigma_b_norm = 17
+B_norm_hi = B_norm + sigma_b_norm
+B_norm_lo = B_norm - sigma_b_norm
+
+bkg_tau = 130
 
 def bkg_shape(x, B, tau):
     raw = np.exp(-x / tau)
@@ -69,8 +73,8 @@ plt.bar(centers, sig, width=(edges[1]-edges[0]),
 plt.show()
 
 #INCERTEZZE SU PARAMETRI PER HISTOSYS
-delta_tau   = 0.05 * bkg_tau   # incertezza su tau
-delta_sigma = 0.05 * sigma     # incertezza su sigma
+delta_tau   = 0.01 * bkg_tau   # incertezza su tau
+delta_sigma = 0.01 * sigma     # incertezza su sigma
 
 bkg_hi      = bkg_shape(centers, B_norm, bkg_tau + delta_tau)
 bkg_lo      = bkg_shape(centers, B_norm, bkg_tau - delta_tau)
@@ -109,7 +113,15 @@ model = pyhf.Model(
                                     "hi_data": bkg_hi.tolist(),
                                     "lo_data": bkg_lo.tolist()   
                                 },
-                            },     
+                            },
+                            {
+                            	"name": "b_norm",
+                            	"type": "normsys",
+                            	"data": {
+                            		"hi": B_norm_hi,
+                            		"lo": B_norm_lo
+                            	}
+                            },	     
                         ]
                     },
                     {
@@ -160,6 +172,7 @@ expected_main = model.expected_data(pars, include_auxdata=False)
 obs_main = rng_obs.poisson(expected_main)
 aux = model.config.auxdata  
 
+#obs_main = np.array([284,174,110,203,121,67,41,133,62,50,42,79,33,29,23])
 obs_data = np.concatenate([obs_main, aux])
 
 #Calcolo upper limit con vari metodi per confrontare
@@ -253,10 +266,6 @@ for label, mu_grid, mu_root in pairs:
         mu_root, obs_data, model, test_stat="qtilde"
     ))
     print(f"{label:12s} {pval_grid:>15.4f} {pval_root:>15.4f}")
-
-result, res_obj = pyhf.infer.mle.fixed_poi_fit(
-    1.0, obs_data, model, return_result_obj=True
-)
 
 #brazil plot
 test_mus = np.linspace(0, 10, 100)
