@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import norm
 import pyhf
 from pyhf.contrib.viz import brazil
 import matplotlib.pyplot as plt
@@ -34,10 +35,10 @@ Is it correct to take the gamma value from the different processes and make a me
 
 '''
 
-B_norm = 1444
+B_norm = 13345
 sigma_b_norm = 17
-B_norm_hi = B_norm + sigma_b_norm
-B_norm_lo = B_norm - sigma_b_norm
+B_norm_hi = (B_norm + sigma_b_norm) / B_norm
+B_norm_lo = (B_norm - sigma_b_norm) / B_norm
 
 bkg_tau = 130
 
@@ -62,7 +63,13 @@ def sig_shape(x, N, sigma):
     raw = np.exp(-0.5 * (x / sigma)**2)
     return N * raw / raw.sum()
 
-sig = sig_shape(centers, S_norm, sigma)
+    
+def sig_bin_probs(edges, sigma):
+    return np.diff(norm.cdf(edges, loc = 0.0, scale=sigma))
+    
+sig = S_norm * sig_bin_probs(edges, sigma)
+
+#sig = sig_shape(centers, S_norm, sigma)
 
 
 plt.figure()
@@ -73,14 +80,17 @@ plt.bar(centers, sig, width=(edges[1]-edges[0]),
 plt.show()
 
 #INCERTEZZE SU PARAMETRI PER HISTOSYS
-delta_tau   = 0.01 * bkg_tau   # incertezza su tau
-delta_sigma = 0.01 * sigma     # incertezza su sigma
+delta_tau   = 0.2 * bkg_tau   # incertezza su tau
+delta_sigma = 0.2 * sigma     # incertezza su sigma
 
 bkg_hi      = bkg_shape(centers, B_norm, bkg_tau + delta_tau)
 bkg_lo      = bkg_shape(centers, B_norm, bkg_tau - delta_tau)
 
-sig_hi      = sig_shape(centers, S_norm, sigma + delta_sigma)
-sig_lo      = sig_shape(centers, S_norm, sigma - delta_sigma)
+#sig_hi      = sig_shape(centers, S_norm, sigma + delta_sigma)
+#sig_lo      = sig_shape(centers, S_norm, sigma - delta_sigma)
+
+sig_hi = S_norm * sig_bin_probs(edges, sigma + delta_sigma)
+sig_lo = S_norm * sig_bin_probs(edges, sigma - delta_sigma)
 
 print("bkg nominal sum:", bkg.sum())
 print("bkg hi sum:     ", bkg_hi.sum())
@@ -230,7 +240,7 @@ print(f"  +2σ            = {BR_exp_toy[4]}")
 print("\n")
 '''
 
-
+'''
 # Verifica convergenza con Minuit
 print("Comparison of upper limits")
 
@@ -266,6 +276,7 @@ for label, mu_grid, mu_root in pairs:
         mu_root, obs_data, model, test_stat="qtilde"
     ))
     print(f"{label:12s} {pval_grid:>15.4f} {pval_root:>15.4f}")
+'''
 
 #brazil plot
 test_mus = np.linspace(0, 10, 100)
