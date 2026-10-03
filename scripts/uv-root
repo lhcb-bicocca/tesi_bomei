@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+ensure_root_for_uv() {
+    if ! command -v root-config >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local root_prefix
+    root_prefix="$(root-config --prefix 2>/dev/null || true)"
+    if [[ -z "$root_prefix" ]]; then
+        return 0
+    fi
+
+    local root_python_dir="$root_prefix/lib/root"
+    if [[ ! -d "$root_python_dir/ROOT" ]]; then
+        return 0
+    fi
+
+    local venv_dir="$PROJECT_ROOT/.venv"
+    if [[ ! -d "$venv_dir" ]]; then
+        return 0
+    fi
+
+    local -a site_dirs
+    site_dirs=("$venv_dir"/lib/python*/site-packages)
+    if [[ ${#site_dirs[@]} -eq 0 || ! -d "${site_dirs[0]}" ]]; then
+        return 0
+    fi
+    local py_site="${site_dirs[0]}"
+
+    # Persist the ROOT Python path inside the venv so `uv run python` can import ROOT.
+    printf '%s\n' "$root_python_dir" > "$py_site/_system_root_path.pth"
+}
+
+main() {
+    cd "$PROJECT_ROOT"
+
+    local subcommand="${1:-}"
+    case "$subcommand" in
+        sync|init)
+            uv "$@"
+            ensure_root_for_uv
+            ;;
+        run)
+            ensure_root_for_uv
+            uv "$@"
+            ;;
+        *)
+            uv "$@"
+            ;;
+    esac
+}
+
+main "$@"
