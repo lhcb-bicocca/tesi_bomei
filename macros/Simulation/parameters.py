@@ -27,6 +27,9 @@ ALPHA_REL  	    = SIGMA_ALPHA_EFF / ALPHA_EFF
 ALPHA_HI = 1.0 / (1.0 + ALPHA_REL)
 ALPHA_LO = 1.0 / (1.0 - ALPHA_REL)
 
+N_SIG = 1.0 * BR_REF / ALPHA_EFF #~25 for mu = 1
+N_SIG_C = N_SIG / N_CATEGORIES #segnale atteso per categoria
+
 #SR region
 SR_BAND = 20 #Mev
 SR_MAX  = + SR_BAND
@@ -51,6 +54,8 @@ Toy settings
 '''
 
 SEED = 42
+rng = np.random.default_rng(SEED+1)
+POI = 0 #bkg only
 
 #Mass window
 MASS_BAND = 150 #Mev
@@ -58,11 +63,23 @@ MASS_MAX  = + MASS_BAND
 MASS_MIN  = - MASS_BAND
 
 #Shape values; these are assumed from the figures in the paper
-TAU_BKG   = 130 #Mev
+TAU_BKG   = np.ones(N_CATEGORIES)* 130 #Mev
 SIGMA_SIG = 10  #Mev
 
 TAU_BKG_REL_UNC   = 0.20 #suppongo un 20% 
 SIGMA_SIG_REL_UNC = 0.20
 
-REFLECTIONS = []
+REFLECTIONS = [
+    {"name": "spurious", "mu": 5.0, "sigma": 8.0, "frac": 0.03},
+]
+
+#Efficiencies
+EFF_BKG = rng.uniform(0.5, 1.0, size=N_CATEGORIES)
+EFF_SIG = rng.uniform(0.5, 1.0, size=N_CATEGORIES)
+
+W_BKG = EFF_BKG / EFF_BKG.sum()
+W_SIG = EFF_SIG / EFF_SIG.sum()
+
+BKG_CAT = BKG_SR_TOT * W_BKG
+SIG_CAT = N_SIG * W_SIG
 
