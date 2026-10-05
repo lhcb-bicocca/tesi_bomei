@@ -108,7 +108,7 @@ def generate_toy(
 )
                 n_refl = rng.poisson(p.BKG_SR[c] * R["frac"] * k_refl)
                 refl   = sample_sig(rng, n_refl, mean=R["mu"], sigma=R["sigma"],
-                                    lo=p.MASS_MIN, hi=p.MASS_MAX)
+                                    lo=lo, hi=hi)
                 all_x.append(refl)
                 all_cat.append(np.full(n_refl, c))
                 all_label.append(np.full(n_refl, "refl"))
