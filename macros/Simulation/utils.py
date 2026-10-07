@@ -15,8 +15,8 @@ def exp_integral(lo, hi, tau):
 def gauss_integral(lo, hi, mu, sigma):     
     
     return ( 
-        norm.cdf(hi - mu / sigma) -
-        norm.cdf(lo - mu / sigma)
+        norm.cdf( (hi - mu) / sigma) -
+        norm.cdf( (lo - mu) / sigma)
     )
    
    
@@ -82,7 +82,23 @@ def get_expected_flat_binned(bins, expected_total):
         
     return expected_bins
 
-
+def get_expected_ref_binned(bins, n_bkg_window, lo, hi, reflections=p.REFLECTIONS):
+    """
+    Calcola la somma binnata di tutte le componenti di riflessione.
+    """
+    ref_binned_tot = np.zeros(len(bins) - 1)
+    for R in reflections:
+        G_win = gauss_integral(lo, hi, R["mu"], R["sigma"])
+        G_full = gauss_integral(p.MASS_MIN, p.MASS_MAX, R["mu"], R["sigma"])
+        
+        # Eventi totali attesi per questa specifica riflessione
+        n_refl_expected = R["frac"] * n_bkg_window * (G_win / G_full)
+        
+        ref_binned_tot += get_expected_gauss_binned(
+            bins, mu=R["mu"], sigma=R["sigma"],
+            expected_total=n_refl_expected, lo=lo, hi=hi
+        )
+    return ref_binned_tot
 
 
 

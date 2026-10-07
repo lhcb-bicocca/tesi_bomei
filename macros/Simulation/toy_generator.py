@@ -49,7 +49,7 @@ def generate_toy(
     lo = p.MASS_MIN,
     hi = p.MASS_MAX,
     include_signal = True, 
-    reflection = False,
+    reflection = True,
     plot=False,
     verbose = True
 ):

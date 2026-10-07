@@ -4,11 +4,116 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from pyhf.contrib.viz import brazil
 from utils import exp_integral, gauss_integral, binning
-from utils import get_expected_exp_binned, get_expected_gauss_binned, get_expected_flat_binned
-
+from utils import get_expected_exp_binned, get_expected_gauss_binned, get_expected_flat_binned, get_expected_ref_binned
 import parameters as p
-import toy_generator as tg
+import toy_generator
+from toy_generator import generate_toy
 
 pyhf.set_backend("numpy", "minuit")
 
+#Calcolo expected for each models given the toy
+def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
+
+    lo, hi = lo, hi
+    binned_data, bins = binning(x, cat, lo=lo, hi=hi)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+
+    expected_bkg =  []
+    expected_ref =  []
+    expected_flat = []
+    expected_sig =  []
+
+
+    for c in range(p.N_CATEGORIES):
+        tau = p.TAU_BKG[c]
+        k_bkg = exp_integral(lo, hi, tau) / exp_integral(p.SR_MIN, p.SR_MAX, tau)
+        n_bkg_window = p.BKG_SR[c]
+        
+        if model == "flat":
+            #Fondo piatto
+            flat_binned = get_expected_flat_binned(
+                bins=bins, 
+                expected_total=n_bkg_window*k_bkg)
+            expected_bkg.append(flat_binned)
+            
+        else:
+            # Fondo exp
+            bkg_binned = get_expected_exp_binned(
+                bins=bins,
+                tau=p.TAU_BKG[c],
+                expected_total=n_bkg_window,
+                lo=p.SR_MIN,
+                hi=p.SR_MAX
+            )
+            expected_bkg.append(bkg_binned)
+        
+        if model == "refl":
+            #Riflessioni attese per categoria c
+            ref_binned = get_expected_ref_binned(
+                bins, 
+                n_bkg_window=n_bkg_window, 
+                lo=lo, 
+                hi=hi
+            )
+            expected_ref.append(ref_binned)
+        
+        # Segnale atteso binnato per la categoria c
+        sig_binned = get_expected_gauss_binned(
+            bins=bins,
+            mu = 0,
+            sigma=p.SIGMA_SIG, 
+            expected_total=p.SIG_CAT[c], 
+            lo=p.SR_MIN,
+            hi=p.SR_MAX
+        )
+        expected_sig.append(sig_binned)
+        
+    if PLOT:
+        for c in range(p.N_CATEGORIES):
+            plt.figure(figsize=(9, 5))
+            
+            plt.stairs(binned_data[c], bins, label="Toy Data (Observed)", color="black", linewidth=1.5)
+            plt.plot(bin_centers, expected_bkg[c], label=f"Bkg ({model})", color="C0", linestyle="--")
+            plt.plot(bin_centers, expected_sig[c], label="Expected Signal", color="red", linestyle="-")
+            
+            total_model = expected_bkg[c] + expected_sig[c]
+            
+            if model == "refl":
+                plt.plot(bin_centers, expected_ref[c], label="Reflections", color="green", linestyle="-.")
+                total_model = total_model + expected_ref[c]
+
+            plt.plot(bin_centers, total_model, label="Total Expected Model", color="purple", linewidth=1.8)
+            plt.axvspan(p.SR_MIN, p.SR_MAX, color="red", alpha=0.1, label="Signal Region")
+
+            plt.xlabel(r"$m_{3\mu} - m_\tau$ [MeV]")
+            plt.ylabel(f"Events / {p.BIN_WIDTH} MeV")
+            plt.title(f"Category {c + 1} - Model: {model}")
+            plt.legend(fontsize=8, loc="upper right")
+            plt.grid(alpha=0.3)
+            plt.tight_layout()
+            plt.show()
+
+    return binned_data, bins, expected_bkg, expected_sig, expected_ref
+
+
+
+if __name__ == "__main__":
+    x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
+                                 include_signal=True,
+                                 plot=False, verbose=False)
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "ref", PLOT = True)
+
+
+def pyhf_workspace(binned_obs, binned_bkg, binned_sig, binned_ref=None,
+                              bkg_unc=None, sig_unc=p.ALPHA_REL,
+                              categories=None):
+
+
+'''
+def model_bkg_flat():
+
+def model_bkg_exp():
+
+def model_bkg_refl():
+'''
 
