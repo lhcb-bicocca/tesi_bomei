@@ -2,7 +2,6 @@ import numpy as np
 import pyhf
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-from pyhf.contrib.viz import brazil
 from utils import exp_integral, gauss_integral, binning
 from utils import get_expected_exp_binned, get_expected_gauss_binned, get_expected_flat_binned, get_expected_ref_binned
 import parameters as p
@@ -51,7 +50,7 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
             #Riflessioni attese per categoria c
             ref_binned = get_expected_ref_binned(
                 bins, 
-                n_bkg_window=n_bkg_window, 
+                n_bkg_window=n_bkg_window*k_bkg, 
                 lo=lo, 
                 hi=hi
             )
@@ -62,7 +61,7 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
             bins=bins,
             mu = 0,
             sigma=p.SIGMA_SIG, 
-            expected_total=p.SIG_CAT[c], 
+            expected_total=p.N_SIG_C, 
             lo=p.SR_MIN,
             hi=p.SR_MAX
         )
@@ -95,25 +94,119 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
 
     return binned_data, bins, expected_bkg, expected_sig, expected_ref
 
+def build_pyhf_workspace(
+                         binned_data, 
+                         bkg_expected, 
+                         sig_expected, 
+                         cats = None,
+                         ref_expected = None
+                         ):
+    '''
+    Build Pyhf Workspace from observed and expected counts from 
+    different values.
+    '''
+    
+    if cats is None:
+        cats = list(range(p.N_CATEGORIES))
+        
+    channels =     []
+    observations = []
+    
+    for c in cats:
+        cat_name = f"category_{c+1}"
+        
+        #Toy data
+        observations.append({
+            "name": cat_name,
+            "data": binned_data[c].tolist()
+        }) 
+            
+        #segnale    
+        samples = [
+            {   
+                "name": "signal",
+                "data": sig_expected[c].tolist(),
+                "modifiers": [
+                    #POI
+                    {"name": "mu", "type": "normfactor", "data": None},
+                    #ALPHA_UNC
+                    
+                    {
+                        "name": "sig_eff_unc",
+                        "type": "normsys",
+                        "data": {
+                            "lo": float(p.ALPHA_LO),
+                            "hi": float(p.ALPHA_HI)
+                        }
+                    },
+                    #SIGMA
+                ]
+            }
+        ]
+        
+        #Background
+        samples.append({
+            "name": "background",
+            "data": bkg_expected[c].tolist(),
+            "modifiers": [
+                #NORMALIZZAZIONE
+                #TAU
+            ]
+        })    
+        
+        #Riflessioni
+        if ref_expected is not None and np.sum(ref_expected[c]) > 0:
+            samples.append({
+                "name": "reflections",
+                "data": ref_expected[c].tolist(),
+                "modifiers": []
+                    #incertezza su mu e sigma riflessioni
+            })
+        channels.append({
+            "name": cat_name,
+            "samples": samples
+        })
+            
+    #Costruzione JSON
+    spec = {
+            "channels": channels,
+            "observations": observations,
+            "measurements": [   
+                {
+                    "name": "tau3mu_LHCb_run2",
+                    "config": {
+                        "poi": "mu",
+                        "parameters": []
+                    }
+                }
+            ],
+            "version": "1.0.0"
+        }
+        
+    return pyhf.Workspace(spec)     
+                
+def model_bkg_flat(obs, bkg_flat, sig_exp, cats=None):
+    """Genera il workspace pyhf per fondo piatto."""
+    return build_pyhf_workspace(obs, bkg_flat, sig_exp, ref_expected=None, cats=cats)
 
+def model_bkg_exp(obs, bkg_exp, sig_exp, cats=None):
+    """Genera il workspace pyhf per fondo esponenziale."""
+    return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=None, cats=cats)
 
+def model_bkg_refl(obs, bkg_exp, sig_exp, refl_exp, cats=None):
+    """Genera il workspace pyhf per fondo esponenziale + riflessioni."""
+    return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=refl_exp, cats=cats)
+                
+'''
 if __name__ == "__main__":
     x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
                                  include_signal=True,
                                  plot=False, verbose=False)
-    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "ref", PLOT = True)
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "refl", PLOT = False)
+'''
 
-
+'''
 def pyhf_workspace(binned_obs, binned_bkg, binned_sig, binned_ref=None,
                               bkg_unc=None, sig_unc=p.ALPHA_REL,
                               categories=None):
-
-
 '''
-def model_bkg_flat():
-
-def model_bkg_exp():
-
-def model_bkg_refl():
-'''
-
