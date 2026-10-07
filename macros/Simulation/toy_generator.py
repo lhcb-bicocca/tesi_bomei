@@ -3,6 +3,7 @@ import pyhf
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 import parameters as p
+from utils import exp_integral, gauss_integral
 
 pyhf.set_backend("numpy", "minuit")
 
@@ -42,20 +43,13 @@ def sample_sig(rng, n, mean=0.0, sigma=p.SIGMA_SIG, lo=p.SR_MIN, hi=p.SR_MAX):
     
     return mean + sigma*norm.ppf(u)
 
-#Calcolo delle sidebands
-def exp_integral(lo, hi, tau):
-    return tau * (
-        np.exp(-lo / tau) -
-        np.exp(-hi / tau)
-    )
-
 def generate_toy(
     seed = p.SEED, 
     POI = p.POI, 
     lo = p.MASS_MIN,
     hi = p.MASS_MAX,
     include_signal = True, 
-    reflection = True,
+    reflection = False,
     plot=False,
     verbose = True
 ):
@@ -97,18 +91,19 @@ def generate_toy(
 	    
         #reflections
         if reflection:
+            N_window = p.BKG_SR[c] * k_bkg
+            G = lambda a, b, mu, sigma: (
+                norm.cdf((b - mu) / sigma) - norm.cdf((a - mu) / sigma)
+            )
             for R in p.REFLECTIONS:
-            
-                k_refl = (
-    norm.cdf((hi - R["mu"]) / R["sigma"])
-    - norm.cdf((lo - R["mu"]) / R["sigma"])
-) / (
-    norm.cdf((p.SR_MAX - R["mu"]) / R["sigma"])
-    - norm.cdf((p.SR_MIN - R["mu"]) / R["sigma"])
-)
-                n_refl = rng.poisson(p.BKG_SR[c] * R["frac"] * k_refl)
-                refl   = sample_sig(rng, n_refl, mean=R["mu"], sigma=R["sigma"],
-                                    lo=lo, hi=hi)
+                n_refl = rng.poisson(
+                    R["frac"] * N_window
+                    * G(lo, hi, R["mu"], R["sigma"])
+                    / G(p.MASS_MIN, p.MASS_MAX, R["mu"], R["sigma"])
+                )
+                refl = sample_sig(rng, n_refl,
+                                  mean=R["mu"], sigma=R["sigma"],
+                                  lo=lo, hi=hi)
                 all_x.append(refl)
                 all_cat.append(np.full(n_refl, c))
                 all_label.append(np.full(n_refl, "refl"))
@@ -119,24 +114,18 @@ def generate_toy(
     
     #check
     if verbose:
-        n_bkg_tot = (label == "bkg").sum()
-        in_sr = ((x >= p.SR_MIN) & (x <= p.SR_MAX) & (label == "bkg")).sum()
-        n_sig_tot = (label == "sig").sum()
-        # atteso sulla finestra completa: somma dei k_bkg pesati sui BKG_SR
-        k_bkg_tot = sum(
-            p.BKG_SR[c] * exp_integral(lo, hi, p.TAU_BKG[c])
-            / exp_integral(p.SR_MIN, p.SR_MAX, p.TAU_BKG[c])
-            for c in range(p.N_CATEGORIES)
-        )
-        print("=" * 55)
-        print(f"Toy generated (seed={seed}, POI={POI})")
-        print("=" * 55)
-        print(f"  Total events : {x.size}")
-        print(f"  Background   : {n_bkg_tot}  (atteso ~{k_bkg_tot:.0f})")
-        print(f"  Bkg in SR    : {in_sr}  (atteso ~{p.BKG_SR_TOT:.0f})")
+        n_bkg_tot  = (label == "bkg").sum()
+        n_refl_tot = (label == "refl").sum()
+        n_sig_tot  = (label == "sig").sum()
+        in_sr_bkg  = ((x >= p.SR_MIN) & (x <= p.SR_MAX) & (label == "bkg")).sum()
+        in_sr_refl = ((x >= p.SR_MIN) & (x <= p.SR_MAX) & (label == "refl")).sum()
+
+        print(f"  Background   : {n_bkg_tot}")
+        print(f"  Reflections  : {n_refl_tot}")
+        print(f"  Bkg in SR    : {in_sr_bkg}  (atteso ~{p.BKG_SR_TOT:.0f})")
+        print(f"  Refl in SR   : {in_sr_refl}")
         if include_signal:
-            print(f"  Signal       : {n_sig_tot}  (atteso ~{POI * p.N_SIG:.1f})")
-        print()
+            print(f"  Signal       : {n_sig_tot}")
 
     if plot:
         bin_width = 10
@@ -162,6 +151,9 @@ def generate_toy(
                      label=f"signal (N={(label == 'sig').sum()})")
         ax1.axvspan(p.SR_MIN, p.SR_MAX, alpha=0.1, color="red",
                     label="signal region")
+        if reflection:
+            for R in p.REFLECTIONS:
+                ax1.axvline(R["mu"], color="green", ls=":", alpha=0.7)
         ax1.set_xlabel(r"$m_{3\mu} - m_\tau$ [MeV]")
         ax1.set_ylabel(f"Events / {bin_width} MeV")
         ax1.set_title("Full window")
@@ -176,7 +168,10 @@ def generate_toy(
                      color="C3", alpha=0.8, edgecolor="darkred", label="signal")
         ax2.set_xlabel(r"$m_{3\mu} - m_\tau$ [MeV]")
         ax2.set_ylabel(f"Events / {sr_bin_width} MeV")
-        ax2.set_title(f"Signal region zoom (N_SR = {in_sr})")
+        ax2.set_title(f"Signal region zoom (N_SR = {in_sr_bkg + in_sr_refl})")
+        if reflection:
+            for R in p.REFLECTIONS:
+                ax2.axvline(R["mu"], color="green", ls=":", alpha=0.7)
         ax2.legend()
         ax2.grid(alpha=0.3)
 
@@ -262,4 +257,3 @@ if __name__ == "__main__":
     x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
                                  include_signal=True,
                                  plot=True, verbose=True)
-

@@ -1,5 +1,7 @@
 import numpy as np
 
+LEVEL = 0.10
+
 '''
 PDG 2024: https://pdg.lbl.gov/2024/listings/rpp2024-list-tau.pdf
 '''
@@ -12,6 +14,7 @@ Datas from LHCb experiment Run 2 paper (https://cds.cern.ch/record/2953558)
 '''
 
 N_CATEGORIES = 15 #Number of classifier categories
+BIN_WIDTH    = 10 #MeV
 
 #Expected BR from the paper
 BR_REF = 1e-8
@@ -70,7 +73,9 @@ TAU_BKG_REL_UNC   = 0.20 #suppongo un 20%
 SIGMA_SIG_REL_UNC = 0.20
 
 REFLECTIONS = [
-    {"name": "spurious", "mu": 5.0, "sigma": 8.0, "frac": 0.03},
+    {"name": "Dp_pi3",  "mu": 81.0,  "sigma": 12.0, "frac": 0.03},
+    {"name": "Ds_pi3",  "mu": 191.0, "sigma": 15.0, "frac": 0.01},
+    {"name": "spurious", "mu": 5.0, "sigma": 8.0, "frac": 0.003},
 ]
 
 #Efficiencies
