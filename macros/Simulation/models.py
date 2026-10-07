@@ -176,7 +176,13 @@ def build_pyhf_workspace(
                     "name": "tau3mu_LHCb_run2",
                     "config": {
                         "poi": "mu",
-                        "parameters": []
+                        "parameters": [
+                        {
+                            "name": "mu",
+                            "bounds": [[0, 100]]  
+                        }
+                    ]
+                    
                     }
                 }
             ],
