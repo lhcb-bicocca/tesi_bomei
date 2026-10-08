@@ -55,7 +55,7 @@ ws_tot_ref = model_bkg_refl(obs, bkg_exp_exp, sig_exp, bkg_exp_ref, cats=None)
 
 ##### FOR CATEGORY #####
 
-
+'''
 #flat
 print("UPPER LIMIT FOR SINGLE CATEGORY FOR FLAT BKG")
 for c in range(p.N_CATEGORIES):
@@ -73,25 +73,13 @@ print("UPPER LIMIT FOR SINGLE CATEGORY FOR EXP+REF BKG")
 for c in range(p.N_CATEGORIES):
 	print(f"--- Category {c+1} ---")
 	upper_limit(ws_cat_ref[c])
+'''
 
 ##### FOR TOTAL ######
 print("UPPER LIMIT FOR TOT FOR FLAT BKG")
-upper_limit(ws_tot_flat)
+upper_limit(ws_tot_flat, PLOT = True)
 print("UPPER LIMIT FOR TOT FOR EXP BKG")
-upper_limit(ws_tot_exp)
+upper_limit(ws_tot_exp, PLOT = True)
 print("UPPER LIMIT FOR TOT FOR REF BKG")
-upper_limit(ws_tot_ref)
-
-
-
-
-
-
-
-
-
-
-
-	
-
+upper_limit(ws_tot_ref, PLOT = True)
 

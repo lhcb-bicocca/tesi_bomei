@@ -151,9 +151,6 @@ def generate_toy(
                      label=f"signal (N={(label == 'sig').sum()})")
         ax1.axvspan(p.SR_MIN, p.SR_MAX, alpha=0.1, color="red",
                     label="signal region")
-        if reflection:
-            for R in p.REFLECTIONS:
-                ax1.axvline(R["mu"], color="green", ls=":", alpha=0.7)
         ax1.set_xlabel(r"$m_{3\mu} - m_\tau$ [MeV]")
         ax1.set_ylabel(f"Events / {bin_width} MeV")
         ax1.set_title("Full window")
@@ -169,9 +166,6 @@ def generate_toy(
         ax2.set_xlabel(r"$m_{3\mu} - m_\tau$ [MeV]")
         ax2.set_ylabel(f"Events / {sr_bin_width} MeV")
         ax2.set_title(f"Signal region zoom (N_SR = {in_sr_bkg + in_sr_refl})")
-        if reflection:
-            for R in p.REFLECTIONS:
-                ax2.axvline(R["mu"], color="green", ls=":", alpha=0.7)
         ax2.legend()
         ax2.grid(alpha=0.3)
 

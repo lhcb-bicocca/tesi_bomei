@@ -203,16 +203,10 @@ def model_bkg_refl(obs, bkg_exp, sig_exp, refl_exp, cats=None):
     """Genera il workspace pyhf per fondo esponenziale + riflessioni."""
     return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=refl_exp, cats=cats)
                 
-'''
+
 if __name__ == "__main__":
     x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
                                  include_signal=True,
                                  plot=False, verbose=False)
-    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "refl", PLOT = False)
-'''
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "refl", PLOT = True)
 
-'''
-def pyhf_workspace(binned_obs, binned_bkg, binned_sig, binned_ref=None,
-                              bkg_unc=None, sig_unc=p.ALPHA_REL,
-                              categories=None):
-'''

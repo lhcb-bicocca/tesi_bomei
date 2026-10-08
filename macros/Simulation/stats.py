@@ -2,6 +2,7 @@ import parameters as p
 import numpy as np
 import pyhf
 from pyhf.contrib.viz import brazil
+import matplotlib.pyplot as plt
 
 def upper_limit(workspace, level = p.LEVEL, PLOT = False, VERBOSE = True):
     model = workspace.model()
