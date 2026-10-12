@@ -48,4 +48,4 @@ This project implements a statistical analysis pipeline based on `pyhf` to estim
 ### 7. `analysis_TOT.py`
 * **What it does**: Main executable script extended to the full mass window.
 * **Key contents**: 
-  * Executes the same pipeline as `analysis_SR.py`, but considers the full interval (`MASS_MIN` to `MASS_MAX`) for binning and background sideband fitting[cite: 2].
+  * Executes the same pipeline as `analysis_SR.py`, but considers the full interval (`MASS_MIN` to `MASS_MAX`) for binning and background sideband fitting.
