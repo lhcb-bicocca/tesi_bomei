@@ -7,11 +7,20 @@ from utils import get_expected_exp_binned, get_expected_gauss_binned, get_expect
 import parameters as p
 import toy_generator
 from toy_generator import generate_toy
+from stats import fit_background_sidebands
 
 pyhf.set_backend("numpy", "minuit")
 
+#Cache, in this way I don't have to modify analysis.py
+_CACHE_BKG_UP = {}
+_CACHE_BKG_DOWN = {}
+_CACHE_SIG_UP = {}
+_CACHE_SIG_DOWN = {}
+_CACHE_REFL_UP = {}
+_CACHE_REFL_DOWN = {}
+
 #Calcolo expected for each models given the toy
-def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
+def models_expected(x, cat, lo, hi, model = "exp", PLOT = False, PRINT = False):
 
     lo, hi = lo, hi
     binned_data, bins = binning(x, cat, lo=lo, hi=hi)
@@ -21,9 +30,12 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
     expected_ref =  []
     expected_flat = []
     expected_sig =  []
+    
+    fit_results_summary = []
 
 
     for c in range(p.N_CATEGORIES):
+        x_cat = x[cat == c]
         tau = p.TAU_BKG[c]
         k_bkg = exp_integral(lo, hi, tau) / exp_integral(p.SR_MIN, p.SR_MAX, tau)
         n_bkg_window = p.BKG_SR[c]
@@ -35,16 +47,28 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
                 expected_total=n_bkg_window*k_bkg)
             expected_bkg.append(flat_binned)
             
+            _CACHE_BKG_UP[(model, c)] = flat_binned
+            _CACHE_BKG_DOWN[(model, c)] = flat_binned
+            
         else:
-            # Fondo exp
-            bkg_binned = get_expected_exp_binned(
-                bins=bins,
-                tau=p.TAU_BKG[c],
-                expected_total=n_bkg_window,
-                lo=p.SR_MIN,
-                hi=p.SR_MAX
+            tau_fit, tau_err_down, tau_err_up = fit_background_sidebands(
+                x_cat, lo, hi, init_tau=p.TAU_BKG[c], debug=True
             )
+            fit_results_summary.append((c + 1, tau_fit, tau_err_down, tau_err_up))
+            
+            k_bkg_fit = exp_integral(lo, hi, tau_fit) / exp_integral(p.SR_MIN, p.SR_MAX, tau_fit)
+            total_bkg_full = n_bkg_window * k_bkg_fit
+            
+            bkg_binned = get_expected_exp_binned(bins=bins, tau=tau_fit, expected_total=total_bkg_full, lo=lo, hi=hi)
             expected_bkg.append(bkg_binned)
+            
+            tau_up = tau_fit + tau_err_up
+            k_bkg_up = exp_integral(lo, hi, tau_up) / exp_integral(p.SR_MIN, p.SR_MAX, tau_up)
+            _CACHE_BKG_UP[(model, c)] = get_expected_exp_binned(bins=bins, tau=tau_up, expected_total=n_bkg_window * k_bkg_up, lo=lo, hi=hi)
+            
+            tau_down = max(1.0, tau_fit + tau_err_down)
+            k_bkg_down = exp_integral(lo, hi, tau_down) / exp_integral(p.SR_MIN, p.SR_MAX, tau_down)
+            _CACHE_BKG_DOWN[(model, c)] = get_expected_exp_binned(bins=bins, tau=tau_down, expected_total=n_bkg_window * k_bkg_down, lo=lo, hi=hi)
         
         if model == "refl":
             #Riflessioni attese per categoria c
@@ -67,6 +91,17 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False):
         )
         expected_sig.append(sig_binned)
         
+    if model != "flat" and fit_results_summary and PRINT:
+        print("\n" + "=" * 65)
+        print(f"  RISULTATI FIT PARAMETRO TAU (Modello: {model.upper()})")
+        print("=" * 65)
+        print(f" {'Categoria'} | {'Tau Fittato':<12} | {'Err Down (Minos)':<16} | {'Err Up (Minos)':<15}")
+        print("-" * 65)
+        for cat_id, t_val, t_dw, t_up in fit_results_summary:
+            print(f" Cat {cat_id:2d}    | {t_val:12.4f} | {t_dw:16.4f} | {t_up:15.4f}")
+        print("=" * 65 + "\n")
+        
+    
     if PLOT:
         for c in range(p.N_CATEGORIES):
             plt.figure(figsize=(9, 5))
@@ -145,13 +180,23 @@ def build_pyhf_workspace(
         ]
         
         #Background
+        bkg_modifiers = []
+        # Cerca i template di bkg nella cache
+        down_bkg = _CACHE_BKG_DOWN.get((list(_CACHE_BKG_UP.keys())[0][0] if _CACHE_BKG_UP else "exp", c))
+        up_bkg = _CACHE_BKG_UP.get((list(_CACHE_BKG_UP.keys())[0][0] if _CACHE_BKG_UP else "exp", c))
+        
+        if up_bkg is not None and down_bkg is not None:
+            bkg_modifiers.append({
+                "name": f"bkg_shape_unc_cat{c+1}",
+                "type": "histosys",
+                "data": {"lo_data": down_bkg.tolist(), "hi_data": up_bkg.tolist()}
+            })
+        
+        
         samples.append({
             "name": "background",
             "data": bkg_expected[c].tolist(),
-            "modifiers": [
-                #NORMALIZZAZIONE
-                #TAU
-            ]
+            "modifiers": bkg_modifiers  
         })    
         
         #Riflessioni
@@ -202,11 +247,56 @@ def model_bkg_exp(obs, bkg_exp, sig_exp, cats=None):
 def model_bkg_refl(obs, bkg_exp, sig_exp, refl_exp, cats=None):
     """Genera il workspace pyhf per fondo esponenziale + riflessioni."""
     return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=refl_exp, cats=cats)
+              
+def plot_total_fit(x, cat, lo, hi, model="refl"):
+    """
+    Somma i dati e i modelli attesi di tutte le 15 categorie in un unico istogramma
+    e produce il plot globale di controllo.
+    """
+    # Ottiene i dati binnati e i bin standard
+    binned_data, bins = binning(x, cat, lo=lo, hi=hi)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+
+    # Eseguiamo models_expected per calcolare i vettori per categoria (sfruttando la cache)
+    # Nota: questo popolerà anche la cache dei modelli per ciascuna categoria
+    from models import models_expected, _CACHE_BKG_UP, _CACHE_BKG_DOWN, _CACHE_REFL_UP, _CACHE_REFL_DOWN
+    
+    b_data, _, exp_bkg, exp_sig, exp_ref = models_expected(x, cat, lo, hi, model=model, PLOT=False)
+
+    # Somma cumulativa su tutte le categorie
+    total_data = np.sum(b_data, axis=0)
+    total_bkg = np.sum(exp_bkg, axis=0)
+    total_sig = np.sum(exp_sig, axis=0)
+    total_ref = np.sum(exp_ref, axis=0) if exp_ref else np.zeros_like(total_bkg)
+
+    total_model = total_bkg + total_sig + total_ref
+
+    # Creazione del plot
+    plt.figure(figsize=(10, 6))
+    
+    plt.stairs(total_data, bins, label="Total Toy Data (Observed)", color="black", linewidth=1.5)
+    plt.plot(bin_centers, total_bkg, label=f"Total Background ({model})", color="C0", linestyle="--")
+    plt.plot(bin_centers, total_sig, label="Total Expected Signal", color="red", linestyle="-")
+    
+    if model == "refl" and np.sum(total_ref) > 0:
+        plt.plot(bin_centers, total_ref, label="Total Reflections", color="green", linestyle="-.")
+
+    plt.plot(bin_centers, total_model, label="Total Expected Model", color="purple", linewidth=1.8)
+    plt.axvspan(p.SR_MIN, p.SR_MAX, color="red", alpha=0.1, label="Signal Region")
+
+    plt.xlabel(r"$m_{3\mu} - m_\tau$ [MeV]", fontsize=12)
+    plt.ylabel(f"Events / {p.BIN_WIDTH} MeV", fontsize=12)
+    plt.title(f"Aggregated Total Fit (All {p.N_CATEGORIES} Categories Combined) - Model: {model.upper()}")
+    plt.legend(fontsize=10, loc="upper right")
+    plt.grid(alpha=0.3)
+    plt.tight_layout()
+    plt.show()
                 
 
 if __name__ == "__main__":
     x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
                                  include_signal=True,
                                  plot=False, verbose=False)
-    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "refl", PLOT = True)
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "exp", PLOT = True)
 
+    plot_total_fit(x, cat, p.MASS_MIN, p.MASS_MAX, model="refl")

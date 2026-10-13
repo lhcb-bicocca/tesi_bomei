@@ -3,7 +3,94 @@ import numpy as np
 import pyhf
 from pyhf.contrib.viz import brazil
 import matplotlib.pyplot as plt
+from iminuit import Minuit
+import parameters as p
+from utils import exp_integral
 
+#Fit con Minuit di exp
+
+def fit_background_sidebands(x_toy, lo, hi, init_tau=p.TAU_BKG, debug=False):
+    
+    sideband_mask = (x_toy < p.SR_MIN) | (x_toy > p.SR_MAX)
+    x_sidebands = x_toy[sideband_mask]
+    
+    if len(x_sidebands) < 5:
+        if debug:
+            print(f"[DEBUG] Troppo pochi eventi nelle sidebands ({len(x_sidebands)}). Uso init: tau = {init_tau}")
+            #Variazione del 20%
+        return init_tau, -0.2 * init_tau, 0.2 * init_tau
+        
+    def nll_exp(tau):
+        if tau <= 0:
+            return 1e10
+        norm_factor = exp_integral(lo, hi, tau)
+        if norm_factor <= 0:
+            return 1e10
+        
+        pdf_vals = np.exp(-x_sidebands / tau) / norm_factor
+        pdf_vals = np.maximum(pdf_vals, 1e-300)
+        return -np.sum(np.log(pdf_vals))
+
+    # 3. Fit con iminuit e blocchi di debug
+    try:
+        m = Minuit(nll_exp, tau=init_tau)
+        
+        if debug:
+            print("\n" + "=" * 50)
+            print(f"[DEBUG] INIZIO FIT SIDEBANDS (Eventi validi: {len(x_sidebands)})")
+            print("=" * 50)
+            
+        # Esecuzione MIGRAD
+        m.migrad()
+        if debug:
+            print(f"[1/3] MIGRAD completato:")
+            print(f"  - Convergenza valida (is_valid): {m.valid}")
+            print(f"  - Valore minimo della NLL (m.fval): {m.fval:.4f}")
+            print(f"  - Stato fmin: {m.fmin}")
+            print(f"  - Valore provvisorio tau: {m.values['tau']:.4f}")
+
+        # Esecuzione HESSE
+        m.hesse()
+        if debug:
+            print(f"[2/3] HESSE completato:")
+            print(f"  - Errore parabolico (Hesse): {m.errors['tau']:.4f}")
+
+        # Esecuzione MINOS 
+        has_minos = False
+        try:
+            m.minos()
+            if 'tau' in m.merrors and m.merrors['tau'].is_valid:
+                has_minos = True
+                if debug:
+                    print(f"[3/3] MINOS completato:")
+                    print(f"  - Errori asimmetrici: -{m.merrors['tau'].lower:.4f}, +{m.merrors['tau'].upper:.4f}")
+        except Exception:
+            if debug:
+                print("[3/3] MINOS non è riuscito a calcolare gli errori asimmetrici.")
+
+        if not m.valid or m.errors["tau"] is None or np.isnan(m.errors["tau"]):
+            if debug:
+                print("[DEBUG] Risultato del fit scartato (valido=False o errore NaN). Applico fallback.")
+                print("=" * 50 + "\n")
+            return init_tau, -0.2 * init_tau, 0.2 * init_tau
+            
+        if debug:
+            print(f"[DEBUG] FIT RIUSCITO CON SUCCESSO: tau = {m.values['tau']:.4f}")
+            print("=" * 50 + "\n")
+        
+
+        if has_minos:
+            return m.values["tau"], m.merrors["tau"].lower, m.merrors["tau"].upper
+        else:
+            return m.values["tau"], -m.errors["tau"], m.errors["tau"]
+        
+    except Exception as e:
+        if debug:
+            print(f"[DEBUG] Eccezione critica durante il fit: {e}")
+            print("=" * 50 + "\n")
+        return init_tau, -0.2 * init_tau, 0.2 * init_tau
+
+#Upper limit con pyhf
 def upper_limit(workspace, level = p.LEVEL, PLOT = False, VERBOSE = True):
     model = workspace.model()
     data  = workspace.data(model)

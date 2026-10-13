@@ -69,8 +69,8 @@ MASS_MIN  = - MASS_BAND
 TAU_BKG   = np.ones(N_CATEGORIES)* 130 #Mev
 SIGMA_SIG = 10  #Mev
 
-TAU_BKG_REL_UNC   = 0.20 #suppongo un 20% 
-SIGMA_SIG_REL_UNC = 0.20
+#TAU_BKG_REL_UNC   = 0.20 #suppongo un 20% 
+#SIGMA_SIG_REL_UNC = 0.20
 
 REFLECTIONS = [
     {"name": "Dp_pi3",  "mu": 81.0,  "sigma": 12.0, "frac": 0.03},
@@ -78,6 +78,7 @@ REFLECTIONS = [
     {"name": "spurious", "mu": 5.0, "sigma": 8.0, "frac": 0.003},
 ]
 
+'''
 #Efficiencies
 EFF_BKG = rng.uniform(0.5, 1.0, size=N_CATEGORIES)
 EFF_SIG = rng.uniform(0.5, 1.0, size=N_CATEGORIES)
@@ -87,4 +88,4 @@ W_SIG = EFF_SIG / EFF_SIG.sum()
 
 BKG_CAT = BKG_SR_TOT * W_BKG
 SIG_CAT = N_SIG * W_SIG
-
+'''
