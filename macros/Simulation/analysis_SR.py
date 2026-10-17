@@ -5,29 +5,49 @@ from pyhf.contrib.viz import brazil
 
 import parameters as p
 from toy_generator import generate_toy
+import models
 from models import models_expected, model_bkg_flat, model_bkg_exp, model_bkg_refl
 from stats import upper_limit
 
 #Genero il toy
-mass, cat, label = generate_toy(lo = p.SR_MIN, hi = p.SR_MAX, seed=p.SEED, POI=p.POI, include_signal=True, reflection=True, plot=False, verbose=False)
+mass, cat, label = generate_toy(lo = p.MASS_MIN, hi = p.MASS_MAX, seed=p.SEED, POI=p.POI, include_signal=True, reflection=True, plot=False, verbose=False)
 
 '''
 Binning of the observed datas and expected datas according to three models of background: fixed, exp, exp+refl
 '''
 
-obs, bins, bkg_exp_flat, sig_exp, _ = models_expected(
-    mass, cat, lo=p.SR_MIN, hi=p.SR_MAX, model="flat", PLOT=False
+obs_full, bins_full, bkg_full_flat, sig_full_exp, _ = models_expected(
+    mass, cat, lo=p.MASS_MIN, hi=p.MASS_MAX, model="flat", PLOT=False
 )
 
-
-_, _, bkg_exp_exp, _, _ = models_expected(
-    mass, cat, lo=p.SR_MIN, hi=p.SR_MAX, model="exp", PLOT=False
+_, _, bkg_full_exp, _, _ = models_expected(
+    mass, cat, lo=p.MASS_MIN, hi=p.MASS_MAX, model="exp", PLOT=False
 )
 
-
-_, _, _, _, bkg_exp_ref = models_expected(
-    mass, cat, lo=p.SR_MIN, hi=p.SR_MAX, model="refl", PLOT=False
+_, _, _, _, bkg_full_ref = models_expected(
+    mass, cat, lo=p.MASS_MIN, hi=p.MASS_MAX, model="refl", PLOT=False
 )
+
+# 2. Identifichiamo i bin che cadono nella Signal Region (SR)
+bin_centers = (bins_full[:-1] + bins_full[1:]) / 2
+sr_indices = np.where((bin_centers >= p.SR_MIN) & (bin_centers <= p.SR_MAX))[0]
+
+# 3. Tagliamo (ristringiamo) i dati e i modelli attesi focalizzandoci solo sulla SR
+obs = [counts[sr_indices] for counts in obs_full]
+sig_exp = [sig[sr_indices] for sig in sig_full_exp]
+bkg_exp_flat = [bkg[sr_indices] for bkg in bkg_full_flat]
+bkg_exp_exp  = [bkg[sr_indices] for bkg in bkg_full_exp]
+bkg_exp_ref  = [ref[sr_indices] for ref in bkg_full_ref]
+
+# 4. Aggiorniamo la cache delle sistematiche di forma affinché abbiano la stessa dimensione della SR
+for key in list(models._CACHE_BKG_UP.keys()):
+    models._CACHE_BKG_UP[key] = models._CACHE_BKG_UP[key][sr_indices]
+for key in list(models._CACHE_BKG_DOWN.keys()):
+    models._CACHE_BKG_DOWN[key] = models._CACHE_BKG_DOWN[key][sr_indices]
+for key in list(models._CACHE_SIG_UP.keys()):
+    models._CACHE_SIG_UP[key] = models._CACHE_SIG_UP[key][sr_indices]
+for key in list(models._CACHE_SIG_DOWN.keys()):
+    models._CACHE_SIG_DOWN[key] = models._CACHE_SIG_DOWN[key][sr_indices]
 
 #creo modelli per singola categoria
 ws_cat_flat = []

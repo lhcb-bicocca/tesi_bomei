@@ -20,7 +20,7 @@ _CACHE_REFL_UP = {}
 _CACHE_REFL_DOWN = {}
 
 #Calcolo expected for each models given the toy
-def models_expected(x, cat, lo, hi, model = "exp", PLOT = False, PRINT = False):
+def models_expected(x, cat, lo, hi, model = "exp", PLOT = True, PRINT = False):
 
     lo, hi = lo, hi
     binned_data, bins = binning(x, cat, lo=lo, hi=hi)
@@ -50,7 +50,7 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False, PRINT = False):
             _CACHE_BKG_UP[(model, c)] = flat_binned
             _CACHE_BKG_DOWN[(model, c)] = flat_binned
             
-        else:
+        elif model == "exp":
             tau_fit, tau_err_down, tau_err_up = fit_background_sidebands(
                 x_cat, lo, hi, init_tau=p.TAU_BKG[c], debug=True
             )
@@ -70,7 +70,7 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False, PRINT = False):
             k_bkg_down = exp_integral(lo, hi, tau_down) / exp_integral(p.SR_MIN, p.SR_MAX, tau_down)
             _CACHE_BKG_DOWN[(model, c)] = get_expected_exp_binned(bins=bins, tau=tau_down, expected_total=n_bkg_window * k_bkg_down, lo=lo, hi=hi)
         
-        if model == "refl":
+        elif model == "refl":
             #Riflessioni attese per categoria c
             ref_binned = get_expected_ref_binned(
                 bins, 
@@ -90,6 +90,18 @@ def models_expected(x, cat, lo, hi, model = "exp", PLOT = False, PRINT = False):
             hi=p.SR_MAX
         )
         expected_sig.append(sig_binned)
+        
+        sigma_up = p.SIGMA_SIG * 1.15
+        sigma_down = max(0.1, p.SIGMA_SIG * 0.85)
+        
+        sig_binned_up = get_expected_gauss_binned(
+            bins=bins, mu=0, sigma=sigma_up, expected_total=p.N_SIG_C, lo=p.SR_MIN, hi=p.SR_MAX
+        )
+        sig_binned_down = get_expected_gauss_binned(
+            bins=bins, mu=0, sigma=sigma_down, expected_total=p.N_SIG_C, lo=p.SR_MIN, hi=p.SR_MAX
+        )
+        _CACHE_SIG_UP[c] = sig_binned_up
+        _CACHE_SIG_DOWN[c] = sig_binned_down
         
     if model != "flat" and fit_results_summary and PRINT:
         print("\n" + "=" * 65)
@@ -133,6 +145,7 @@ def build_pyhf_workspace(
                          binned_data, 
                          bkg_expected, 
                          sig_expected, 
+                         model,
                          cats = None,
                          ref_expected = None
                          ):
@@ -156,6 +169,9 @@ def build_pyhf_workspace(
             "data": binned_data[c].tolist()
         }) 
             
+        down_sig = _CACHE_SIG_DOWN.get(c, sig_expected[c])
+        up_sig = _CACHE_SIG_UP.get(c, sig_expected[c])
+        
         #segnale    
         samples = [
             {   
@@ -175,6 +191,14 @@ def build_pyhf_workspace(
                         }
                     },
                     #SIGMA
+                    {
+                        "name": f"sig_shape_sigma_cat{c+1}",
+                        "type": "histosys",
+                        "data": {
+                            "lo_data": down_sig.tolist(),
+                            "hi_data": up_sig.tolist()
+                        }
+                    }
                 ]
             }
         ]
@@ -185,27 +209,43 @@ def build_pyhf_workspace(
         down_bkg = _CACHE_BKG_DOWN.get((list(_CACHE_BKG_UP.keys())[0][0] if _CACHE_BKG_UP else "exp", c))
         up_bkg = _CACHE_BKG_UP.get((list(_CACHE_BKG_UP.keys())[0][0] if _CACHE_BKG_UP else "exp", c))
         
-        if up_bkg is not None and down_bkg is not None:
+        if model == "flat":
+            rel_err = float(p.SIGMA_BKG_SR[c] / p.BKG_SR[c])
+            bkg_modifiers.append({
+                "name": f"bkg_flat_norm_cat{c+1}",
+                "type": "normsys",
+                "data": {
+                    "lo": max(0.0, 1.0 - rel_err),
+                    "hi": 1.0 + rel_err
+                }
+            })
+        
+        elif model in ["exp", "refl"]:
             bkg_modifiers.append({
                 "name": f"bkg_shape_unc_cat{c+1}",
                 "type": "histosys",
                 "data": {"lo_data": down_bkg.tolist(), "hi_data": up_bkg.tolist()}
-            })
-        
+            })    
         
         samples.append({
             "name": "background",
             "data": bkg_expected[c].tolist(),
-            "modifiers": bkg_modifiers  
+            "modifiers": [] #bkg_modifiers  
         })    
         
         #Riflessioni
-        if ref_expected is not None and np.sum(ref_expected[c]) > 0:
+        if model == "refl":
+            ref_modifiers = [
+                {#30% su normalizzazione
+                    "name": f"ref_norm_cat{c+1}",
+                    "type": "normsys",
+                    "data": {"lo": 0.7, "hi": 1.3}
+                }
+            ]
             samples.append({
                 "name": "reflections",
                 "data": ref_expected[c].tolist(),
-                "modifiers": []
-                    #incertezza su mu e sigma riflessioni
+                "modifiers": ref_modifiers
             })
         channels.append({
             "name": cat_name,
@@ -236,17 +276,17 @@ def build_pyhf_workspace(
         
     return pyhf.Workspace(spec)     
                 
-def model_bkg_flat(obs, bkg_flat, sig_exp, cats=None):
+def model_bkg_flat(obs, bkg_flat, sig_exp, model = "flat", cats=None):
     """Genera il workspace pyhf per fondo piatto."""
-    return build_pyhf_workspace(obs, bkg_flat, sig_exp, ref_expected=None, cats=cats)
+    return build_pyhf_workspace(obs, bkg_flat, sig_exp, model, ref_expected=None, cats=cats)
 
-def model_bkg_exp(obs, bkg_exp, sig_exp, cats=None):
+def model_bkg_exp(obs, bkg_exp, sig_exp, model = "exp", cats=None):
     """Genera il workspace pyhf per fondo esponenziale."""
-    return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=None, cats=cats)
+    return build_pyhf_workspace(obs, bkg_exp, sig_exp, model, ref_expected=None, cats=cats)
 
-def model_bkg_refl(obs, bkg_exp, sig_exp, refl_exp, cats=None):
+def model_bkg_refl(obs, bkg_exp, sig_exp, refl_exp, model = "refl", cats=None):
     """Genera il workspace pyhf per fondo esponenziale + riflessioni."""
-    return build_pyhf_workspace(obs, bkg_exp, sig_exp, ref_expected=refl_exp, cats=cats)
+    return build_pyhf_workspace(obs, bkg_exp, sig_exp, model, ref_expected=refl_exp, cats=cats)
               
 def plot_total_fit(x, cat, lo, hi, model="refl"):
     """
@@ -292,11 +332,18 @@ def plot_total_fit(x, cat, lo, hi, model="refl"):
     plt.tight_layout()
     plt.show()
                 
-
 if __name__ == "__main__":
     x, cat, label = generate_toy(seed=p.SEED, POI=p.POI,
                                  include_signal=True,
                                  plot=False, verbose=False)
-    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "exp", PLOT = True)
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "flat", PLOT = False)
+
+    plot_total_fit(x, cat, p.MASS_MIN, p.MASS_MAX, model="flat")
+    
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "exp", PLOT = False)
+
+    plot_total_fit(x, cat, p.MASS_MIN, p.MASS_MAX, model="exp")
+    
+    binned_data, bins, expected_bkg, expected_sig, expected_ref = models_expected (x, cat, lo = p.MASS_MIN, hi = p.MASS_MAX, model = "refl", PLOT = False)
 
     plot_total_fit(x, cat, p.MASS_MIN, p.MASS_MAX, model="refl")

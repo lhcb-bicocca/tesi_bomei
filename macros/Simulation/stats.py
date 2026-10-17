@@ -90,6 +90,82 @@ def fit_background_sidebands(x_toy, lo, hi, init_tau=p.TAU_BKG, debug=False):
             print("=" * 50 + "\n")
         return init_tau, -0.2 * init_tau, 0.2 * init_tau
 
+def fit_background_sidebands_with_refl(x_toy, lo, hi, init_tau=p.TAU_BKG, debug=True):
+    """
+    Fit delle sidebands per il modello esponenziale + riflessioni note.
+    """
+    sideband_mask = (x_toy < p.SR_MIN) | (x_toy > p.SR_MAX)
+    x_sidebands = x_toy[sideband_mask]
+    
+    if len(x_sidebands) < 5:
+        if debug:
+            print(f"[DEBUG] Troppo pochi eventi nelle sidebands ({len(x_sidebands)}). Uso init: tau = {init_tau}")
+        return init_tau, -0.2 * init_tau, 0.2 * init_tau
+        
+    # Calcoliamo le normalizzazioni e le forme delle riflessioni sulle sidebands
+    # Dalle impostazioni in parameters, le riflessioni sono gaussiane note.
+    # Possiamo pre-calcolare le frazioni attese.
+    
+    def nll_exp_plus_refl(tau):
+        if tau <= 0:
+            return 1e10
+        
+        # 1. Integrale della componente esponenziale
+        norm_exp = exp_integral(lo, hi, tau)
+        if norm_exp <= 0:
+            return 1e10
+        
+        # PDF esponenziale normalizzata
+        pdf_exp = np.exp(-x_sidebands / tau) / norm_exp
+        
+        # 2. Componenti di riflessione (fisse come modellate in p.REFLECTIONS)
+        pdf_refl_sum = np.zeros_like(x_sidebands)
+        total_refl_frac = sum(R["frac"] for R in p.REFLECTIONS)
+        
+        for R in p.REFLECTIONS:
+            # Integrale della gaussiana della riflessione nella finestra [lo, hi]
+            g_int = gauss_integral(lo, hi, R["mu"], R["sigma"])
+            if g_int > 0:
+                g_vals = norm.pdf(x_sidebands, loc=R["mu"], scale=R["sigma"]) / g_int
+                # Pesa la riflessione in base alla sua frazione relativa rispetto al fondo
+                pdf_refl_sum += (R["frac"] / (1.0 + total_refl_frac)) * g_vals
+
+        # Frazione di fondo combinatorio puro vs riflessioni
+        frac_comb = 1.0 / (1.0 + total_refl_frac)
+        frac_refl = total_refl_frac / (1.0 + total_refl_frac) # approssimazione cumulativa o gestita singolarmente
+        
+        # PDF Totale del fondo nelle sidebands = frac_comb * PDF_exp + frac_refl * PDF_refl
+        # (In modo rigoroso, le frazioni dipendono da N_window, ma qui normalizziamo le PDF)
+        pdf_total = frac_comb * pdf_exp + pdf_refl_sum
+        pdf_total = np.maximum(pdf_total, 1e-300)
+        
+        return -np.sum(np.log(pdf_total))
+
+    # Esecuzione del fit con Minuit (identica alla tua struttura precedente)
+    try:
+        m = Minuit(nll_exp_plus_refl, tau=init_tau)
+        m.migrad()
+        m.hesse()
+        
+        has_minos = False
+        try:
+            m.minos()
+            if 'tau' in m.merrors and m.merrors['tau'].is_valid:
+                has_minos = True
+        except Exception:
+            pass
+
+        if not m.valid or m.errors["tau"] is None or np.isnan(m.errors["tau"]):
+            return init_tau, -0.2 * init_tau, 0.2 * init_tau
+            
+        if has_minos:
+            return m.values["tau"], m.merrors["tau"].lower, m.merrors["tau"].upper
+        else:
+            return m.values["tau"], -m.errors["tau"], m.errors["tau"]
+            
+    except Exception as e:
+        return init_tau, -0.2 * init_tau, 0.2 * init_tau
+
 #Upper limit con pyhf
 def upper_limit(workspace, level = p.LEVEL, PLOT = False, VERBOSE = True):
     model = workspace.model()

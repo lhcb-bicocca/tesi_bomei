@@ -12,8 +12,6 @@ def sample_comb_bkg(rng, n, tau, lo=p.SR_MIN, hi=p.SR_MAX):
 	
     if n <= 0:
         return np.empty(0, dtype=float)
-    if tau <= 0:
-        raise ValueError("tau must be positive")
     if hi <= lo:
         raise ValueError("hi must be > lo")
         
@@ -21,12 +19,11 @@ def sample_comb_bkg(rng, n, tau, lo=p.SR_MIN, hi=p.SR_MAX):
     b = np.exp(-hi/tau) #pdf values in hi 
     u = rng.random(n)   #n uniform in [0, 1)
     y = a - u*(a - b)   #y in [b, a]
-    
     #return x in [lo, hi]
     
     return -tau * np.log(y)
 	
-def sample_sig(rng, n, mean=0.0, sigma=p.SIGMA_SIG, lo=p.SR_MIN, hi=p.SR_MAX):
+def sample_sig(rng, n, mean=0.0, sigma=p.SIGMA_SIG, lo=p.MASS_MIN, hi=p.MASS_MAX):
 	
 	#Sampling n values from a gaussian N(mu, sigma)
 	
@@ -37,7 +34,7 @@ def sample_sig(rng, n, mean=0.0, sigma=p.SIGMA_SIG, lo=p.SR_MIN, hi=p.SR_MAX):
     if hi <= lo:
         raise ValueError("hi must be > lo")
         
-    cdf_lo = norm.cdf((lo - mean) / sigma)
+    cdf_lo = norm.cdf((lo - mean) / sigma)	
     cdf_hi = norm.cdf((hi - mean) / sigma)
     u = rng.uniform(cdf_lo, cdf_hi, size = n)
     
@@ -48,9 +45,9 @@ def generate_toy(
     POI = p.POI, 
     lo = p.MASS_MIN,
     hi = p.MASS_MAX,
-    include_signal = True, 
+    include_signal = False, 
     reflection = True,
-    plot=False,
+    plot=True,
     verbose = True
 ):
 
@@ -132,7 +129,7 @@ def generate_toy(
         n_bins = int(2 * p.MASS_BAND / bin_width)
         bins = np.linspace(p.MASS_MIN, p.MASS_MAX, n_bins + 1)
 
-        sr_bin_width = 4
+        sr_bin_width = 10
         n_bins_sr = int(2 * p.SR_BAND / sr_bin_width)
         bins_sr = np.linspace(p.SR_MIN, p.SR_MAX, n_bins_sr + 1)
 
