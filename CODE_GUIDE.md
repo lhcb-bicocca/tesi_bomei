@@ -22,8 +22,7 @@ The analysis is a toy version of the LHCb Run 2 search. Pseudo-data are generate
 │   ├── utils.py                  # sampling, binning and plotting functions
 │   ├── fast_limit.py             # fast fit and CLs limit (JAX + L-BFGS-B)
 │   ├── dseta_extract.py          # one-off: extracts the Ds->eta mu nu pdf from the ROOT file
-│   ├── template_Dsetamunu_Tot.root, template_dseta.npz   # Ds->eta mu nu 				
-template
+│   ├── template_Dsetamunu_Tot.root, template_dseta.npz   # Ds->eta mu nu template
 │   └── old_code/                 # first single-bin library, not used anymore
 └── macros/
     ├── models.py                 # build_workspace(): pyhf workspace
