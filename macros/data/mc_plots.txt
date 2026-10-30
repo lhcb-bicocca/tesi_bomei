@@ -1,0 +1,7 @@
+data/ul_seeds_bkg.csv: 317 seed ok, mu iniettato = 0, limiti al 90% CL
+  BR_obs [1e-8]: mediana = 2.185   -2s = 1.126  -1s = 1.498  +1s = 3.124  +2s = 4.528
+  BR_exp [1e-8]: mediana = 2.140   -2s = 2.102  -1s = 2.123  +1s = 2.160  +2s = 2.175
+  correlazione BR_obs - BR_exp: r = +0.018; spread (metà della banda +-1s) BR_exp = 0.8%, BR_obs = 37%
+  pull: non disponibile (colonna pull non presente nel CSV)
+
+Plot salvati: mc_obs.pdf, mc_exp.pdf, mc_scatter.pdf (se applicabile); numeri in mc_plots.txt

@@ -1,0 +1,8 @@
+data/ul_seeds_bkg.csv: 1000 toys ok, 0 failed, injected mu = 0, limits at 90% CL
+  seconds per toy: median = 143
+  BR_obs [1e-8]: median = 2.127   -2s = 1.094  -1s = 1.476  +1s = 3.117  +2s = 4.324
+  BR_exp [1e-8]: median = 2.142   -2s = 2.104  -1s = 2.123  +1s = 2.160  +2s = 2.177
+  correlation BR_obs - BR_exp: r = +0.096; spread (half of the +-1s band) BR_exp = 0.9%, BR_obs = 39%
+  pull: mean = -0.045 +/- 0.032, std = 1.012 +/- 0.023  (expected 0 and 1; 0 toys without pull)
+
+Plots saved in: plots/monte_carlo/ (files *_ul_seeds_bkg.pdf); numbers in mc_plots_ul_seeds_bkg.txt

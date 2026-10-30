@@ -10,7 +10,9 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "analysis-helpers",
+    "iminuit>=2.33.0",
     "pyhf>=0.7.6",
+    "tqdm>=4.70.0",
 ]
 
 [tool.hatch.build.targets.wheel]

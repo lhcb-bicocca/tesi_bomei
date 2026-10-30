@@ -1,0 +1,24 @@
+Model 'exp_misid_dseta', excluded categories = [], 1 toys (seed 42..42), calctype = fast
+Limits in units of BR (BR_REF = 1e-08), CL = 90%; reference = 10 MeV
+
+  w =  74.0 MeV (  5 bins of 74.00 MeV): expected 3.344e-08, observed (mean) 3.817e-08  [45 s]
+  w =  37.0 MeV ( 10 bins of 37.00 MeV): expected 2.432e-08, observed (mean) 2.595e-08  [97 s]
+  w =  20.0 MeV ( 18 bins of 20.56 MeV): expected 2.262e-08, observed (mean) 2.347e-08  [111 s]
+  w =  15.0 MeV ( 25 bins of 14.80 MeV): expected 2.176e-08, observed (mean) 1.932e-08  [133 s]
+  w =  10.0 MeV ( 37 bins of 10.00 MeV): expected 2.150e-08, observed (mean) 1.861e-08  [211 s]
+  w =   5.0 MeV ( 74 bins of 5.00 MeV): expected 2.104e-08, observed (mean) 1.740e-08  [281 s]
+  w =   2.0 MeV (185 bins of 2.00 MeV): expected 2.091e-08, observed (mean) 1.790e-08  [476 s]
+  w =   1.0 MeV (370 bins of 1.00 MeV): expected 2.089e-08, observed (mean) 1.723e-08  [784 s]
+
+     width bins | expected UL  vs ref. |   observed UL (mean) |        paired ratio UL(w)/UL(ref.)
+     74.00    5 |  3.344e-08   +55.5% |            3.817e-08 |                             2.0514
+     37.00   10 |  2.432e-08   +13.1% |            2.595e-08 |                             1.3943
+     20.56   18 |  2.262e-08    +5.2% |            2.347e-08 |                             1.2610
+     14.80   25 |  2.176e-08    +1.2% |            1.932e-08 |                             1.0384
+     10.00   37 |  2.150e-08    +0.0% |            1.861e-08 |                             1.0000
+      5.00   74 |  2.104e-08    -2.2% |            1.740e-08 |                             0.9354
+      2.00  185 |  2.091e-08    -2.7% |            1.790e-08 |                             0.9622
+      1.00  370 |  2.089e-08    -2.8% |            1.723e-08 |                             0.9258
+(width = actual bin width; expected 'vs ref.' = percentage variation relative to the reference width)
+
+Plot saved: bins_study.pdf; table in data/bins_study.txt

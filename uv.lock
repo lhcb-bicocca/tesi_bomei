@@ -438,6 +438,59 @@ wheels = [
 ]
 
 [[package]]
+name = "iminuit"
+version = "2.33.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/d0/e31af328165497a569e403cbf5545fce7899be5c43a20ff3f23f2753185d/iminuit-2.33.0.tar.gz", hash = "sha256:275f3daa1d4f8c33579b96276d7c5fb680a7cfb6fb8bea9a4245a1500d5d328b", size = 1890920, upload-time = "2026-09-17T16:27:10.41Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/72/ac/c03c5c239c3a6bb4a4503bf12147e4fbbe072db23c313582232ae28c9887/iminuit-2.33.0-cp314-cp314-ios_13_0_arm64_iphoneos.whl", hash = "sha256:8a7e575bd72a6ff310d35fb7a7687cb0bce2db77a97c79485161bc7a9ca83a9f", size = 406874, upload-time = "2026-09-17T16:25:54.778Z" },
+    { url = "https://files.pythonhosted.org/packages/02/e3/b0b937acfb893690dfdfe40ecff12454288e1e4f68aba31b2b31d03e3085/iminuit-2.33.0-cp314-cp314-ios_13_0_arm64_iphonesimulator.whl", hash = "sha256:f158f58851d96a26d27b50d606335915ce79d798265600e6039260bd034964cc", size = 415338, upload-time = "2026-09-17T16:25:56.435Z" },
+    { url = "https://files.pythonhosted.org/packages/99/1b/234aa216744f029af1400d565f000cc8d5b5ab6d41f1ed6dc019c63e7e6a/iminuit-2.33.0-cp314-cp314-ios_13_0_x86_64_iphonesimulator.whl", hash = "sha256:ce6e4348a5e8d0ea927fb9586306f45d836fea9f5542ad777420d74f5edd1da3", size = 458710, upload-time = "2026-09-17T16:25:57.844Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/8f/5233719a645454e38af7c6db098adaa992cc787bf1650afe5b12e172083c/iminuit-2.33.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:e52c4078e2305778ffbe25fbcf648f53694c98dd2d356a850981803b74072a2f", size = 458619, upload-time = "2026-09-17T16:25:59.313Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/4f/44e5f431c64764354e9fa71aa0415b89d11fc8585132c25a5eb4798994aa/iminuit-2.33.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:f7e660dd87ef8f8b9063a81ce0b2a1b83b47acc2382a95fbfd127576d6be2a59", size = 415706, upload-time = "2026-09-17T16:26:00.639Z" },
+    { url = "https://files.pythonhosted.org/packages/92/fa/8da7de8f9fc9c038fa8bb54f452941de861a4e7c8ad91248ae1bab65bb2e/iminuit-2.33.0-cp314-cp314-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:92fa0d6f8615a283576cdb1ca607bc1c322730a74c971a3ba819d09360fcd7f2", size = 433660, upload-time = "2026-09-17T16:26:02.163Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/d8/90e376a19d98e8d27f3850575a020bae1d39d3dda9836a256e0533511324/iminuit-2.33.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:fae1f1efb8770b7a7a49b0e9643e493149d3f5391f7ae47b60319be2e2e808aa", size = 469258, upload-time = "2026-09-17T16:26:03.582Z" },
+    { url = "https://files.pythonhosted.org/packages/7b/6a/d214314a7b4287732ebf051ec0cd8ed40fa7394dcc86af0f6edac8e7d3d6/iminuit-2.33.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:874575b57a8e9e1b519d4d2d0073e55981f2235b17bd3f439decfc47a74002d1", size = 1440607, upload-time = "2026-09-17T16:26:05.082Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/03/313d293fb6b4a73f2c11822e290489aa3ce5e6b7e0a7acf1ca6b3ddc33d8/iminuit-2.33.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:d76230431d2667f06386340278a11f912f84997dd5aa1bf5c0e0cdf8f705b5c5", size = 1514283, upload-time = "2026-09-17T16:26:06.706Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/6a/367bab5f364f63dbfb6d8d36ce30bf17bcc0ab6849a9aa68ee3ed88e16dc/iminuit-2.33.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl", hash = "sha256:1917d7e777aac9e896a773dd963b83b7bbcb5870b27bb191c3f29d91ce216e4d", size = 318405, upload-time = "2026-09-17T16:26:08.183Z" },
+    { url = "https://files.pythonhosted.org/packages/e3/b1/abd341c21747d37bea4cd06e6e7b7342fbc930cf78f438a549c672aa6966/iminuit-2.33.0-cp314-cp314-win32.whl", hash = "sha256:f1581e75e48b1d3519d3c71ac3b78d41458f71ce6f38e93e81807b4737741de4", size = 569504, upload-time = "2026-09-17T16:26:09.501Z" },
+    { url = "https://files.pythonhosted.org/packages/13/b0/02b3fc6df69aa21075b8186d3e253dfa2a22338f8f5d31bbd25cf005aca9/iminuit-2.33.0-cp314-cp314-win_amd64.whl", hash = "sha256:f8b366e90c3f5a940acc4a1213ebd8faa17461eea857b8bb7ebc22fe20304226", size = 609655, upload-time = "2026-09-17T16:26:10.914Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/03/f630ee5ae34177e89c0a273763bf16bab87f78b44d001d3029485775b8c5/iminuit-2.33.0-cp314-cp314-win_arm64.whl", hash = "sha256:436f583ed6fdb3490726125274e7b65839d694add16a58264939d7378fd32998", size = 780954, upload-time = "2026-09-17T16:26:12.511Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/83/63e7a2afebdee6c8f7a7592f0be5442643382e834f4efa23edb48c760471/iminuit-2.33.0-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:5e148fbcb0a0089ca427d646c04402c5889fece7269d4afc2ec7befa47c96268", size = 477411, upload-time = "2026-09-17T16:26:13.928Z" },
+    { url = "https://files.pythonhosted.org/packages/10/26/b92bdb6527651ce3be4b2c05e64128729c48963093fff9f8c01075fb0fc0/iminuit-2.33.0-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:9e9d2f93e2fe49d1aa896a503c494df93014995741756eca704bf7ae72c4ea7d", size = 434203, upload-time = "2026-09-17T16:26:15.625Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/37/7ac302c4f2e1a224a0d49be9208bea7ea213173ce270fdb6f303fd2693da/iminuit-2.33.0-cp314-cp314t-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:e2535124a880019c19556587db3257cf2c361d65be556f9735d231ec7d1528a3", size = 434341, upload-time = "2026-09-17T16:26:17.004Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/70/427f11cc5fbb03dee45198330d7cc71ec83a5a73cda65c5057a32f478c17/iminuit-2.33.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:0ddd209e05ba6fc14e544740d4617882e48ade0025a5c0432da381f263fbea79", size = 471470, upload-time = "2026-09-17T16:26:18.409Z" },
+    { url = "https://files.pythonhosted.org/packages/87/4e/8aa90612d0d5fc8e6e2a40abda8f9e602d0a40fe6279b9657deb0837ad01/iminuit-2.33.0-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:aec7207f4ff0c9784fd3cdb231565a15eef20dada3029825a15e40c8a976c7c3", size = 1442105, upload-time = "2026-09-17T16:26:20.285Z" },
+    { url = "https://files.pythonhosted.org/packages/21/1d/6c0e622c10f6e64c6cbed833e091beaacdc4d2cd79d77e7b1c8ec14ccd35/iminuit-2.33.0-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:495cc45d09aab85a2f7e2e6afafb154ad7c75330271474e1d23ee9a7fdee5e09", size = 1516406, upload-time = "2026-09-17T16:26:22.07Z" },
+    { url = "https://files.pythonhosted.org/packages/59/39/f7662b477c29406d25446cc712e70d5e73c3b609352627c158b70ec2756e/iminuit-2.33.0-cp314-cp314t-win_amd64.whl", hash = "sha256:d03056e2e79679d3b51377c9f543622380c64101bc74911a793a2ed471bb7be7", size = 621731, upload-time = "2026-09-17T16:26:23.982Z" },
+    { url = "https://files.pythonhosted.org/packages/27/8b/16dbf16f40f9b1a2a8ef64d2ecf4a7e3cdb6a9df23ab1428f4de90795a7f/iminuit-2.33.0-cp314-cp314t-win_arm64.whl", hash = "sha256:50c6e6710954ab694ec69c4e6b7aad4e4713cf0999082900311b06415168545b", size = 792953, upload-time = "2026-09-17T16:26:25.583Z" },
+    { url = "https://files.pythonhosted.org/packages/47/ce/717d4cc6702e0ed52df8ed49725c191186c78afc5a65b642c1751dc22d76/iminuit-2.33.0-cp315-cp315-ios_13_0_arm64_iphoneos.whl", hash = "sha256:e5b61fa0d3fa768752d74afd5312674319765e14cc9462af80314db8e00ba7ad", size = 406878, upload-time = "2026-09-17T16:26:27.049Z" },
+    { url = "https://files.pythonhosted.org/packages/04/62/2dd83bfe7948175d6dbd4c10912e1f7d5c9460cad605b808a9f5c988773f/iminuit-2.33.0-cp315-cp315-ios_13_0_arm64_iphonesimulator.whl", hash = "sha256:b599a4cc6184d510e0e66140859be79bbf72ff822ad1ec00e1614e32a7756d3b", size = 415343, upload-time = "2026-09-17T16:26:28.54Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/60/30182f66c81b9bcb18135f632b7881137488252400f52936b92abe94ea62/iminuit-2.33.0-cp315-cp315-ios_13_0_x86_64_iphonesimulator.whl", hash = "sha256:55f6c4461020a3db1245ced56aa9239dfe4ea76d18923d1883ed3367e118d810", size = 458716, upload-time = "2026-09-17T16:26:30.03Z" },
+    { url = "https://files.pythonhosted.org/packages/cc/2a/18cb2a840bdce8fcd234bc113955dd8192adb3b1d46a8bef9ee706c00a44/iminuit-2.33.0-cp315-cp315-macosx_10_15_x86_64.whl", hash = "sha256:0147f8832abc82d58131e8492b286ca4888f7f037ac2326026432dde138d2358", size = 458621, upload-time = "2026-09-17T16:26:31.784Z" },
+    { url = "https://files.pythonhosted.org/packages/e8/bd/4f8978cb4fb21c412b4b9b8e9d547ac5ce0375dffe75ddacdc9fae08e563/iminuit-2.33.0-cp315-cp315-macosx_11_0_arm64.whl", hash = "sha256:ea8b3406a3134090731dae819d81af470e46e7e272fbb2edb91697856fc6a94c", size = 415712, upload-time = "2026-09-17T16:26:33.455Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/f2/0ce6c39c45e3dde7cd431ba5b85966d071af4340d8237c04506ef2d3b341/iminuit-2.33.0-cp315-cp315-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5fd4eae421118153bd8d9d43aac73ba2532370f647a376c8f558e7c2619ec209", size = 433662, upload-time = "2026-09-17T16:26:35.282Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/02/d2a69973a1462b8efc4d8dbca020bc5d773cc8d3ed323eedc4864548c924/iminuit-2.33.0-cp315-cp315-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a0fc77e634c0e94ade501d8afd70ecb353d255464effdabd2ff3f3a015885b7c", size = 469262, upload-time = "2026-09-17T16:26:36.771Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/f3/b7e091cad52355eb3a9d4d0ce0b768c309214b269b36446f997c970fe154/iminuit-2.33.0-cp315-cp315-musllinux_1_2_aarch64.whl", hash = "sha256:652b3471a266b363b8945b864b57766f9595865d9c924c5c2636333cbf89d380", size = 1440612, upload-time = "2026-09-17T16:26:38.291Z" },
+    { url = "https://files.pythonhosted.org/packages/31/ed/339a7f85fdd2863c5b9561084ac2b64a3625979b024b7942e37ce3a51636/iminuit-2.33.0-cp315-cp315-musllinux_1_2_x86_64.whl", hash = "sha256:eb3656a592785b9433c86c1d0b14b418ca39990189f2dc7001bca6191770bd71", size = 1514284, upload-time = "2026-09-17T16:26:39.955Z" },
+    { url = "https://files.pythonhosted.org/packages/00/4a/d5e083d0ac9a97f557ffb6f67ea9b614c11f4c16ec4c91d20e65389d2ffc/iminuit-2.33.0-cp315-cp315-pyemscripten_2026_5_wasm32.whl", hash = "sha256:9a554ff4a0bf0364d0d2831deb60eab0ae142d254e3dd16648232f1db8cb7f04", size = 318316, upload-time = "2026-09-17T16:26:41.479Z" },
+    { url = "https://files.pythonhosted.org/packages/28/2e/12e3c333e958d3f33c7ff3a0f63c63c8195c35835816af0290ce0428d3f5/iminuit-2.33.0-cp315-cp315-win32.whl", hash = "sha256:51e1dc95649799f5414601db857d4b173d593cfb65505c6c7a67afac816ce9ae", size = 569888, upload-time = "2026-09-17T16:26:42.9Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/d6/4a4500d8adf68bdbcace6106b978aef65162098c311ec77e0460b1a50418/iminuit-2.33.0-cp315-cp315-win_amd64.whl", hash = "sha256:ca33bea35231c8337823f9901f80c67ee797dee63e318233550ceafcf4ebf18f", size = 609674, upload-time = "2026-09-17T16:26:44.402Z" },
+    { url = "https://files.pythonhosted.org/packages/04/4e/3ed29d7ea19b289ba7f28b7516851a6c9c331798aaa1cdb21a1459557f55/iminuit-2.33.0-cp315-cp315-win_arm64.whl", hash = "sha256:66d9dcca06d45c921805a6e8c4fc396939e2536eda2c7d04193cb0239db6fc2d", size = 780991, upload-time = "2026-09-17T16:26:46.075Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/c1/1023b9aa460c26d60858266a96a5b857d16deebebb6889f8f0a653f6ff3d/iminuit-2.33.0-cp315-cp315t-macosx_10_15_x86_64.whl", hash = "sha256:b30fb5c5c137dd7bc3df8215fcf6db90c6efe2bb0b22d07f83a8b23780242164", size = 477260, upload-time = "2026-09-17T16:26:47.548Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/60/775ba2fa77d1fd0c21c3cf7f3a84af8b928e46928e3f392f05bacd9d6ee4/iminuit-2.33.0-cp315-cp315t-macosx_11_0_arm64.whl", hash = "sha256:452964a8b89b1438463d7dfc68815863e5f36d995fe4d3469ca70147e303d59d", size = 434109, upload-time = "2026-09-17T16:26:49.003Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/ff/8efd050ad7ca155b16e6a5a786ee5d236ec4488f07391b1cf9ca20ec6ec9/iminuit-2.33.0-cp315-cp315t-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:649c15fa20259b7777bad1e5bc905943fec9f63254d2e1506e3a67e8ac61900a", size = 435386, upload-time = "2026-09-17T16:26:50.555Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/62/df13543f4d76effa24e8fd1408cc14979a46aac433d72c63db7c2345170d/iminuit-2.33.0-cp315-cp315t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:db71770717e9e43deba60112cb3b02bf54f72e536e1cbc3406f5a9e31be95acd", size = 472607, upload-time = "2026-09-17T16:26:52.033Z" },
+    { url = "https://files.pythonhosted.org/packages/67/ca/4659dd576143e4dc6d7e442baa6b55347f1f4493e4b0236edd32c4348299/iminuit-2.33.0-cp315-cp315t-musllinux_1_2_aarch64.whl", hash = "sha256:6a262caf7ac4d1d877d5838b2e0eb81187a5d4a6bed131c77f0d6e37a2965433", size = 1443865, upload-time = "2026-09-17T16:26:53.569Z" },
+    { url = "https://files.pythonhosted.org/packages/f8/4f/87a3e67f2ec65f3aa9e7948c3fbf5eab9d389adff87923568589ef7a9d00/iminuit-2.33.0-cp315-cp315t-musllinux_1_2_x86_64.whl", hash = "sha256:4a09bd0e6a279cf9ea559aaced6e8cf56c7753741c5a11dcdce18f39fdc0c859", size = 1517142, upload-time = "2026-09-17T16:26:55.159Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/cc/b449c0d8ac4e35d789a412fc112a2f54cb9bfab98d5583607380cfe53245/iminuit-2.33.0-cp315-cp315t-win_amd64.whl", hash = "sha256:7a3e007bb4e4d11f0ffb3d4c791134d59b6c46571b3208ccdf391516a47505c0", size = 621613, upload-time = "2026-09-17T16:26:56.822Z" },
+    { url = "https://files.pythonhosted.org/packages/61/61/49197a32f2eca87b9938ba441becf224cf8dced72962993805156d7bd2dc/iminuit-2.33.0-cp315-cp315t-win_arm64.whl", hash = "sha256:26f4a86569b128e37396197a70ed96fca4a573f003deb49128db94041c8b04fb", size = 792955, upload-time = "2026-09-17T16:26:58.497Z" },
+]
+
+[[package]]
 name = "ipykernel"
 version = "7.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -719,13 +772,17 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "analysis-helpers" },
+    { name = "iminuit" },
     { name = "pyhf" },
+    { name = "tqdm" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "analysis-helpers", git = "ssh://git@github.com/cpviolation/analysis_helpers.git" },
+    { name = "iminuit", specifier = ">=2.33.0" },
     { name = "pyhf", git = "https://github.com/scikit-hep/pyhf.git" },
+    { name = "tqdm", specifier = ">=4.70.0" },
 ]
 
 [[package]]
