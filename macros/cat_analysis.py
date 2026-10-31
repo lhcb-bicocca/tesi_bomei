@@ -126,7 +126,8 @@ def main():
         ax.set_xticks(range(n_cat))
         ax.set_xticklabels([str(c) for c in order])
         ax.set_xlabel("Category (ordered by sensitivity)")
-        ax.set_ylabel(rf"Expected UL ({(1 - p.CL) * 100:.0f}% CL), single category")
+        ax.set_ylabel(rf"Expected UL ({(1 - p.CL) * 100:.0f}% CL)")
+        ax.margins(y = 0.08)
         fig.savefig(os.path.join(PLOTS_DIR, "categories_single.pdf"), bbox_inches="tight")
         plt.close(fig)
 
@@ -138,6 +139,7 @@ def main():
         ax.set_xlabel("Number of categories (most sensitive ones)")
         ax.set_ylabel(rf"UL ({(1 - p.CL) * 100:.0f}% CL)")
         ax.set_xticks(range(1, n_cat + 1))
+        ax.margins(x = 0.03, y = 0.08)
         ax.legend(frameon=False)
         fig.savefig(os.path.join(PLOTS_DIR, "categories_cumulative.pdf"), bbox_inches="tight")
         plt.close(fig)

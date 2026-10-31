@@ -8,6 +8,7 @@ import os
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import TwoSlopeNorm
 import mplhep as hep
 
 import mypkg.parameters as p
@@ -70,17 +71,24 @@ plot_filepath = os.path.join(PLOTS_DIR, plot_filename)
 with plt.style.context(hep.style.LHCb2):
     fig, ax = plt.subplots(figsize = (9, 6))
     ratio = ul / ref
-    im = ax.imshow(ratio, origin = "lower", aspect = "auto", cmap = "RdYlGn_r", vmin = 0.7, vmax = 1.3)
+    logr = ul
+    norm = TwoSlopeNorm(vmin = logr.min(), vcenter = 0, vmax = logr.max())
+    im = ax.imshow(logr, origin = "lower", cmap = "RdBu_r", norm = norm)
     for i in range(len(EPS_SIG)):
         for j in range(len(EPS_BKG)):
-            ax.text(j, i, f"{(ratio[i, j] - 1) * 100:+.0f}%", ha = "center", va = "center", fontsize = 11)
+            r, g, b, _ = im.cmap(im.norm(logr[i, j]))
+            col = "white" if 0.299 * r + 0.587 * g + 0.114 * b < 0.5 else "black"
+            ax.text(j, i, f"{(ratio[i, j] - 1) * 100:+.0f}%", ha = "center", va = "center", fontsize = 16, color = col)
     ax.set_xticks(range(len(EPS_BKG)))
     ax.set_xticklabels([f"{v:g}" for v in EPS_BKG])
     ax.set_yticks(range(len(EPS_SIG)))
     ax.set_yticklabels([f"{v:g}" for v in EPS_SIG])
     ax.set_xlabel(r"$\varepsilon_{bkg}$ (combinatorial)" if not ALL_BKG else r"$\varepsilon_{bkg}$ (all background)")
     ax.set_ylabel(r"$\varepsilon_{sig}$")
-    fig.colorbar(im, ax = ax, label = "UL / UL(1,1)")
+    cbar = fig.colorbar(im, ax = ax, fraction = 0.046, pad = 0.04, label = "UL / UL(1,1)")
+    ticks = [t for t in (0.5, 0.75, 1, 1.5, 2, 3, 5) if ratio.min() <= t <= ratio.max()]
+    cbar.set_ticks(np.log(ticks))
+    cbar.set_ticklabels([f"{t:g}" for t in ticks])
     fig.savefig(plot_filepath, bbox_inches = "tight")
     plt.close(fig)
     

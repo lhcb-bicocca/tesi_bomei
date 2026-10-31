@@ -10,6 +10,7 @@ import sys
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import NullLocator
 import mplhep as hep
 
 import mypkg.parameters as p
@@ -17,7 +18,7 @@ from analysis import upper_limit
 
 MODEL_TYPE = p.MODEL
 EXCLUDE_CAT = [int(c) for c in os.environ.get("EXCLUDE_CAT", "").split(",") if c.strip() != ""]
-WIDTHS = [float(w) for w in os.environ.get("WIDTHS", "74,37,20,15,10,5,2,1").split(",")]
+WIDTHS = [float(w) for w in os.environ.get("WIDTHS", "74,37,20,15,10,5").split(",")]
 REF = p.BIN_WIDTH if p.BIN_WIDTH in WIDTHS else WIDTHS[0]
 CALCTYPE = "fast"
 
@@ -96,6 +97,14 @@ with plt.style.context(hep.style.LHCb2):
         ax.plot(ws, [observed[w][0] / observed[REF][0] for w in WIDTHS], "s--", color = "#c0504d", label = f"observed (seed {seeds[0]})")
     ax.axhline(1.0, color = "gray", lw = 0.8)
     ax.set_xscale("log")
+    
+    xt = np.sort(ws)
+    ax.set_xticks(xt)
+    ax.set_xticklabels([f"{w:g}" for w in sorted(WIDTHS)])
+    ax.tick_params(axis = "x", which = "major", labelsize = 30 )
+    ax.xaxis.set_minor_locator(NullLocator())
+    ax.margins(x = 0.08, y = 0.08)
+    
     ax.set_xlabel("Bin width [MeV]")
     ax.set_ylabel(f"UL / UL({REF:g} MeV)")
     ax.legend(frameon = False)

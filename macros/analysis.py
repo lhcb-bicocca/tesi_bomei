@@ -22,12 +22,19 @@ from models import build_workspace
 
 from pyhf.tensor.numpy_backend import numpy_backend 
 import mypkg.fast_limit as fl
+import mplhep as hep
+
+import jax.numpy as jnp
+from pyhf.tensor.jax_backend import jax_backend
 
 PLOTS_DIR = os.path.join("plots", "upper_limit")
 
 numpy_backend.percentile = lambda self, t, q, axis = None, interpolation = "linear": \
     np.percentile(t, q, axis = axis, method = interpolation) #fix for pyhf
-    
+
+jax_backend.percentile = lambda self, t, q, axis = None, interpolation = "linear": \
+    jnp.percentile(t, q, axis = axis, method = interpolation) #fix for jax    
+
 def upper_limit(
     seed = p.SEED, 
     cat = [], 
@@ -39,7 +46,7 @@ def upper_limit(
     VERBOSE = True,
 ):
     
-    pyhf.set_backend("numpy" if calctype in ["toybased", "toms748"] else "jax", "scipy")
+    pyhf.set_backend("numpy" if calctype == "toms748" else "jax", "scipy")
     
     x, cat_toy, label = generate_toy(seed, exclude_cat = cat) 
     ws = build_workspace(
@@ -99,7 +106,7 @@ def upper_limit(
         obs, exp, (scan_pts, results) = pyhf_ul(
             data, 
             model, 
-            scan=None, 
+            scan=grid, 
             calctype="toybased", 
             ntoys=ntoys,          
             track_progress=True, 
@@ -126,7 +133,7 @@ def upper_limit(
     
     if VERBOSE:
         print(f"\n--- UPPER LIMIT RESULTS ({calctype.upper()}) ---")
-        print(f"Br_obs ({p.CL*100:.0f}% CL) = {Br_obs:.3e}")
+        print(f"Br_obs ({1-p.CL*100:.0f}% CL) = {Br_obs:.3e}")
         print("Br expected:")
         print(f"  median  = {Br_exp[2]:.3e}")
         if not np.isnan(Br_exp[0]):
@@ -138,20 +145,34 @@ def upper_limit(
             print("  (±1σ/±2σ omitted in FAST)\n")
         
     if PLOT and scan_pts is not None and results is not None:
-        fig, ax = plt.subplots()
-        brazil.plot_results(
-            scan_pts * p.BR_REF, 
-            results, 
-            test_size=p.CL, 
-            ax=ax
-        )
-        ax.set_xlabel("Br", fontsize=12)
-        ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
-        ax.set_ylim(0, 1.0)
-        
-        os.makedirs(PLOTS_DIR, exist_ok = True)
-        plot_path = os.path.join(PLOTS_DIR, f"brazil_plot_{calctype}.pdf")
-        plt.savefig(plot_path, dpi=300)
+        UNIT = 1e-9
+        with plt.style.context(hep.style.LHCb2):
+            plt.rcParams["mathtext.fontset"] = "stix"
+            fig, ax = plt.subplots(figsize = (9, 6), layout = "constrained")
+            artists = brazil.plot_results(
+                scan_pts * p.BR_REF / UNIT,
+                results,
+                test_size = p.CL,
+                ax = ax
+            )
+
+            artists.test_size.remove()
+            handles, labels = ax.get_legend_handles_labels()
+            order = [0, 1, 3, 2] # CLs, CLs_exp, ±1σ, ±2σ
+            ax.legend([handles[i] for i in order], [labels[i] for i in order], loc = "upper right", frameon = True, fancybox = False, edgecolor = "black", framealpha = 1)
+
+            ul_max = max(Br_obs, Br_exp[2]) / UNIT
+            ax.hlines(p.CL, 0, ul_max, color = "red", lw = 1.2)
+            ax.vlines([Br_obs / UNIT, Br_exp[2] / UNIT], 0, p.CL, color = "red", lw = 1.2)
+
+            ax.set_xlim(0, 50)
+            ax.set_ylim(0, 1.0)
+            ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0])
+            ax.set_xlabel(r"$B(\tau^- \to \mu^-\mu^+\mu^-)$ [$10^{-9}$]")
+
+            os.makedirs(PLOTS_DIR, exist_ok = True)
+            plot_path = os.path.join(PLOTS_DIR, f"brazil_plot_{calctype}.pdf")
+            fig.savefig(plot_path)
         plt.show()
         
     return Br_obs, Br_exp

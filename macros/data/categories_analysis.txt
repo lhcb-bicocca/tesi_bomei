@@ -20,7 +20,7 @@ rank  cat | expected UL |    SR bkg      SR sig | note
   14    1 |  1.912e-07 |     221.2       23.67 | 
   15    4 |  2.080e-07 |     313.6       28.22 | 
   16    0 |  2.906e-07 |     468.0       34.57 | 
-(SR sig = expected signal events in SR at category expected limit; note: SR bkg < 20; 47 s)
+(SR sig = expected signal events in SR at category expected limit; note: SR bkg < 20; 42 s)
 
 
 2. Cumulative curve (adding more sensitive categories):
