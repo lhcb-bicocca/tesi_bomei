@@ -1,0 +1,14 @@
+Median expected limit (Asimov), 90% CL, in units of BR (BR_REF = 1e-08); eps_bkg factor applied to: combinatorial only
+
+Percentage variation of expected limit relative to (eps_sig, eps_bkg) = (1, 1) (negative = improvement)
+ eps_sig \ eps_bkg     1.00     0.80     0.60     0.40     0.20
+              1.00    +0.0%    -9.7%   -20.6%   -33.4%   -49.8%
+              0.80   +25.0%   +12.9%    -0.8%   -16.8%   -37.3%
+              0.60   +66.7%   +50.5%   +32.3%   +10.9%   -16.4%
+              0.40  +150.0%  +125.8%   +98.5%   +66.4%   +25.5%
+              0.20  +400.0%  +351.6%  +296.9%  +232.8%  +150.9%
+
+(reference: expected UL = 2.150e-08)
+Grid minimum: eps_sig = 1.00, eps_bkg = 0.20, expected UL = 1.079e-08 (-49.8%)
+
+Plot saved: plots/efficiency/efficiency_grid.pdf; table in data/efficiency_grid.txt

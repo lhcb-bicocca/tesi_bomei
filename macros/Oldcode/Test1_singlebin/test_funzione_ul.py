@@ -3,9 +3,9 @@ import pyhf
 import numpy as np
 
 s = 1 	   #segnale atteso
-b = 10 	   #background atteso
+b = 10	   #background atteso
 n_obs = 8    #eventi osservati
-mu_test = 1    #Supponiamo che segnale esista
+mu_test = 0    #Supponiamo che segnale esista
 
 spec = {
     "channels": [

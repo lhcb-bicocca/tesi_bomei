@@ -1,0 +1,15 @@
+Toy seed 42, fit 'free': -2 ln L = 8902.76
+
+component            |     fitted | nominal (mu = 0)
+----------------------------------------------------
+bkg_Dp               |      292.3 |            291.5
+bkg_Ds               |      565.2 |            520.6
+bkg_Dseta            |      292.7 |            331.5
+bkg_combinatorial    |    19358.0 |          19371.8
+sig                  |        0.0 |              0.0
+----------------------------------------------------
+data                 |      20514 |
+mu fitted = 0.000
+
+Report saved in: data/fit_yields_seed42_free.txt
+Plots saved in: plots/fit_plots/

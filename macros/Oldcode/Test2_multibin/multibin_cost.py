@@ -189,7 +189,7 @@ print(f"  +2σ            = {BR_exp_toy[4]}")
 print("\n")
 '''
 
-
+'''
 # Verifica convergenza con Minuit
 print("Comparison of upper limits")
 
@@ -232,7 +232,7 @@ if ul_obs_root != 0:
     print(f"  observed: {diff_obs / ul_obs_root * 100:.4f}%")
 if med_root != 0:
     print(f"  expected: {diff_med / med_root * 100:.4f}%")
-
+'''
 
 #brazil plot
 test_mus = np.linspace(0, 6, 100)
